@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#060d1a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Eye Trainer"/>
+<meta name="description" content="Daily eye exercise tracker for vision health"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<title>Eye Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;background:#060d1a;color:#f1f5f9;font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+  button{font-family:'DM Sans',sans-serif;cursor:pointer;}
+  button:focus{outline:none;}
+  ::-webkit-scrollbar{width:3px;}
+  ::-webkit-scrollbar-thumb{background:#334155;border-radius:2px;}
+
+  #app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+
+  /* HEADER */
+  .header{background:linear-gradient(160deg,#0d1b35 0%,#060d1a 100%);padding:env(safe-area-inset-top,24px) 20px 20px;border-bottom:1px solid #1e293b;}
+  .header-top{display:flex;justify-content:space-between;align-items:flex-start;}
+  .header-eyebrow{font-size:10px;color:#4ade80;letter-spacing:3px;font-weight:600;margin-bottom:4px;}
+  .header-title{font-size:26px;font-family:'DM Serif Display',serif;line-height:1.2;}
+  .streak-box{text-align:right;}
+  .streak-num{font-size:30px;font-weight:700;color:#4ade80;}
+  .streak-label{font-size:10px;color:#64748b;}
+  .stats-row{display:flex;gap:10px;margin-top:16px;}
+  .stat-card{flex:1;background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:10px 12px;}
+  .stat-val{font-size:17px;font-weight:700;}
+  .stat-lbl{font-size:10px;color:#475569;margin-top:2px;}
+
+  /* TABS */
+  .tabs{padding:14px 20px 0;background:#060d1a;}
+  .tab-bar{display:flex;gap:4px;background:#0f172a;border-radius:10px;padding:4px;}
+  .tab-btn{flex:1;padding:8px 0;border-radius:8px;border:none;font-weight:600;font-size:13px;transition:background 0.2s,color 0.2s;}
+  .tab-btn.active{background:#1e293b;color:#f1f5f9;}
+  .tab-btn.inactive{background:none;color:#475569;}
+
+  /* CONTENT */
+  .content{flex:1;padding:16px 20px 80px;}
+
+  /* EXERCISE CARDS */
+  .ex-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:12px;cursor:pointer;transition:border-color 0.2s,background 0.2s;}
+  .ex-card.done{background:#0a1f0a;border-color:#166534;}
+  .ex-icon{font-size:26px;flex-shrink:0;}
+  .ex-info{flex:1;}
+  .ex-name-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+  .ex-name{font-weight:600;font-size:15px;}
+  .ex-name.done{color:#86efac;}
+  .ex-tag{font-size:10px;padding:1px 7px;border-radius:20px;font-weight:600;}
+  .ex-meta{font-size:12px;color:#64748b;}
+  .ex-check{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .ex-check.done{background:#4ade80;color:#0f172a;font-size:14px;}
+  .ex-check.todo{border:2px solid #334155;color:#475569;font-size:14px;}
+
+  /* ALL DONE BANNER */
+  .all-done{background:linear-gradient(135deg,#14532d,#166534);border:1px solid #4ade80;border-radius:14px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+  .all-done-text h3{font-weight:700;color:#4ade80;}
+  .all-done-text p{font-size:13px;color:#86efac;}
+
+  /* MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:flex;align-items:flex-end;justify-content:center;z-index:200;padding:0;}
+  .modal-overlay.hidden{display:none;}
+  .modal{background:#0f172a;border:1px solid #1e293b;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px calc(env(safe-area-inset-bottom,16px) + 16px);max-height:92vh;overflow-y:auto;}
+  .modal-handle{width:40px;height:4px;background:#334155;border-radius:2px;margin:0 auto 20px;}
+  .modal-close{position:absolute;top:20px;right:20px;background:none;border:none;color:#64748b;font-size:22px;}
+  .modal-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+  .modal-icon{font-size:28px;}
+  .modal-title{font-size:18px;font-weight:700;font-family:'DM Serif Display',serif;}
+  .why-box{border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:#94a3b8;line-height:1.6;border-left-width:3px;border-left-style:solid;}
+
+  /* VISUAL AREA */
+  .visual-area{margin-bottom:16px;min-height:80px;display:flex;align-items:center;justify-content:center;}
+
+  /* STEPS */
+  .step-counter{display:flex;justify-content:space-between;margin-bottom:8px;}
+  .step-label{font-size:12px;color:#64748b;}
+  .step-pct{font-size:12px;}
+  .step-box{background:#1e293b;border-radius:8px;padding:12px 14px;font-size:14px;color:#e2e8f0;line-height:1.6;min-height:64px;margin-bottom:10px;}
+  .step-nav{display:flex;gap:8px;}
+  .step-btn{flex:1;padding:8px 0;background:#1e293b;border:none;border-radius:8px;font-size:13px;}
+
+  /* TIMER */
+  .timer-row{display:flex;align-items:center;gap:14px;margin-top:16px;}
+  .timer-ring{position:relative;width:88px;height:88px;flex-shrink:0;}
+  .timer-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;}
+  .timer-actions{flex:1;display:flex;flex-direction:column;gap:8px;}
+  .btn-start{padding:11px 0;border:none;border-radius:10px;font-weight:700;font-size:14px;color:#0f172a;transition:background 0.2s;}
+  .btn-complete{padding:11px 0;background:none;border:1px solid #4ade80;border-radius:10px;color:#4ade80;font-weight:700;font-size:14px;}
+
+  /* PROGRESS TAB */
+  .section-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:18px 16px;margin-bottom:14px;}
+  .section-title{font-size:11px;color:#64748b;letter-spacing:2px;margin-bottom:14px;}
+  .week-grid{display:flex;gap:6px;justify-content:center;}
+  .day-cell{text-align:center;}
+  .day-box{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;}
+  .day-lbl{font-size:10px;color:#475569;margin-top:3px;}
+  .legend{display:flex;justify-content:center;gap:14px;margin-top:12px;}
+  .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#64748b;}
+  .legend-dot{width:10px;height:10px;border-radius:2px;}
+  .bar-row{margin-bottom:12px;}
+  .bar-top{display:flex;justify-content:space-between;margin-bottom:4px;}
+  .bar-name{font-size:13px;color:#cbd5e1;}
+  .bar-count{font-size:12px;color:#64748b;}
+  .bar-track{background:#1e293b;border-radius:4px;height:6px;}
+  .bar-fill{border-radius:4px;height:6px;transition:width 0.6s ease;}
+  .reminder-box{background:#0a1628;border:1px solid #1e293b;border-radius:14px;padding:14px 16px;}
+  .reminder-label{font-size:12px;color:#64748b;margin-bottom:6px;}
+  .reminder-text{font-size:13px;color:#94a3b8;line-height:1.6;}
+
+  /* INSTALL BANNER */
+  .install-banner{background:#0f1f3d;border:1px solid #1e3a8a;border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;gap:12px;align-items:center;}
+  .install-banner.hidden{display:none;}
+  .install-text{flex:1;font-size:13px;color:#93c5fd;line-height:1.5;}
+  .install-btn{background:#3b82f6;border:none;border-radius:8px;color:#fff;font-weight:700;font-size:13px;padding:8px 14px;white-space:nowrap;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="header-eyebrow">EYE CARE TRACKER</div>
+        <div class="header-title">Daily Vision<br/><em>Exercises</em></div>
+      </div>
+      <div class="streak-box">
+        <div class="streak-num" id="streakNum">0</div>
+        <div class="streak-label">DAY STREAK</div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-val" id="statToday" style="color:#4ade80">0/5</div><div class="stat-lbl">Done Today</div></div>
+      <div class="stat-card"><div class="stat-val" id="statTotal" style="color:#60a5fa">0</div><div class="stat-lbl">Total Sessions</div></div>
+      <div class="stat-card"><div class="stat-val" id="statStreak2" style="color:#f472b6">0</div><div class="stat-lbl">Best Streak</div></div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tabToday" onclick="switchTab('today')">Today's Exercises</button>
+      <button class="tab-btn inactive" id="tabProgress" onclick="switchTab('progress')">My Progress</button>
+    </div>
+  </div>
+
+  <div class="content" id="content"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay hidden" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-header">
+      <span class="modal-icon" id="mIcon"></span>
+      <div>
+        <div class="modal-title" id="mTitle"></div>
+        <span class="ex-tag" id="mTag"></span>
+      </div>
+    </div>
+    <div class="why-box" id="mWhy"></div>
+    <div class="visual-area" id="mVisual"></div>
+    <div class="step-counter">
+      <span class="step-label" id="mStepLabel">STEP 1 OF 6</span>
+      <span class="step-pct" id="mStepPct"></span>
+    </div>
+    <div class="step-box" id="mStepText"></div>
+    <div class="step-nav">
+      <button class="step-btn" id="btnPrev" onclick="prevStep()" style="color:#94a3b8">← Prev</button>
+      <button class="step-btn" id="btnNext" onclick="nextStep()" style="color:#e2e8f0">Next →</button>
+    </div>
+    <div class="timer-row">
+      <div class="timer-ring">
+        <svg width="88" height="88" style="transform:rotate(-90deg)">
+          <circle cx="44" cy="44" r="44" fill="#1e293b"/>
+          <circle cx="44" cy="44" r="36" fill="none" stroke="#1e293b" stroke-width="8"/>
+          <circle id="timerArc" cx="44" cy="44" r="36" fill="none" stroke-width="8"
+            stroke-dasharray="226.2" stroke-dashoffset="226.2" style="transition:stroke-dashoffset 1s linear"/>
+        </svg>
+        <div class="timer-text" id="timerText">--:--</div>
+      </div>
+      <div class="timer-actions">
+        <button class="btn-start" id="btnStart" onclick="toggleTimer()">▶ Start Timer</button>
+        <button class="btn-complete" onclick="markComplete()">✓ Mark Complete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const EXERCISES = [
+  {
+    id:1, name:"Near-Far Focus Shifting", icon:"🔭", duration:120, tag:"Core", tagColor:"#4ade80",
+    why:"Trains the ciliary muscle to flex between distances — especially helpful for farsighted eyes that struggle with near focus.",
+    steps:[
+      "Hold your thumb about 10cm (4 inches) from your nose.",
+      "Focus clearly on your thumb for 3 seconds.",
+      "Shift your gaze to a fixed object 6+ metres away.",
+      "Hold focus on the distant object for 3 seconds.",
+      "Repeat the near-far shift 10 times without rushing.",
+      "Blink gently between each shift to keep eyes moist."
+    ],
+    visual:"near-far"
+  },
+  {
+    id:2, name:"Pencil Push-Ups", icon:"✏️", duration:90, tag:"Convergence", tagColor:"#60a5fa",
+    why:"Strengthens convergence — the ability to turn both eyes inward to focus on close objects. Particularly useful for reading difficulties.",
+    steps:[
+      "Hold a pencil (or finger) at arm's length, centred in your vision.",
+      "Focus on the tip until it appears single and clear.",
+      "Slowly bring the pencil toward your nose.",
+      "Stop the moment you see the tip double.",
+      "Hold that position for 2 seconds.",
+      "Slowly move the pencil back to arm's length.",
+      "Repeat 15 times. Rest if your eyes tire."
+    ],
+    visual:"pencil"
+  },
+  {
+    id:3, name:"Figure-8 Tracking", icon:"∞", duration:60, tag:"Mobility", tagColor:"#f472b6",
+    why:"Improves smooth eye movement and oculomotor control, which helps your eyes glide across lines of text more efficiently.",
+    steps:[
+      "Sit comfortably and relax your shoulders.",
+      "Imagine a large figure-8 lying on its side, about 3 metres away.",
+      "Trace the shape slowly with your eyes — no head movement.",
+      "Go clockwise for one full loop (about 8 seconds).",
+      "Reverse direction and trace anti-clockwise.",
+      "Complete 4 sets (2 clockwise, 2 anti-clockwise).",
+      "Keep breathing steadily throughout."
+    ],
+    visual:"figure8"
+  },
+  {
+    id:4, name:"20-20-20 Rule", icon:"⏱", duration:20, tag:"Relief", tagColor:"#fb923c",
+    why:"Reduces eye strain from sustained near work (reading, screens). Gives your ciliary muscles a complete rest cycle.",
+    steps:[
+      "After 20 minutes of reading or screen time, pause.",
+      "Look at something at least 6 metres (20 feet) away.",
+      "Keep your gaze there for a full 20 seconds.",
+      "Blink naturally and let your eyes relax completely.",
+      "Resume reading. Repeat every 20 minutes."
+    ],
+    visual:"2020"
+  },
+  {
+    id:5, name:"Palming", icon:"🙌", duration:120, tag:"Relaxation", tagColor:"#a78bfa",
+    why:"Relaxes tense ciliary and extraocular muscles, reduces photophobia, and gives your visual cortex a rest — great to end a session.",
+    steps:[
+      "Sit at a table and rest your elbows on it.",
+      "Rub your palms together briskly for 10 seconds to warm them.",
+      "Close your eyes gently.",
+      "Cup your warm palms over your closed eyes — no pressure on the eyeballs.",
+      "Breathe slowly and deeply. Enjoy the darkness.",
+      "Hold for 2 minutes. Let any tension melt away.",
+      "Open your eyes slowly and blink a few times."
+    ],
+    visual:"palming"
+  }
+];
+
+const STORAGE_KEY = "eyetrack_v1";
+let state = {log:{}, streak:0, bestStreak:0, lastDate:null};
+let currentTab = "today";
+let activeEx = null;
+let currentStep = 0;
+let timerVal = 0;
+let timerMax = 0;
+let timerRunning = false;
+let timerInterval = null;
+let fig8Interval = null;
+let fig8T = 0;
+let deferredPrompt = null;
+
+function todayKey(){ return new Date().toISOString().slice(0,10); }
+
+function loadState(){
+  try{ const r=localStorage.getItem(STORAGE_KEY); if(r) state=JSON.parse(r); }catch(e){}
+}
+function saveState(){ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }catch(e){} }
+
+function markComplete(){
+  const today = todayKey();
+  if(!state.log[today]) state.log[today]=[];
+  if(!state.log[today].includes(activeEx.id)) state.log[today].push(activeEx.id);
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+  const yKey = yesterday.toISOString().slice(0,10);
+  if(state.lastDate !== today){
+    const hadYesterday = (state.log[yKey]||[]).length > 0;
+    state.streak = (hadYesterday || state.lastDate===null) ? (state.streak||0)+1 : 1;
+    state.lastDate = today;
+  }
+  state.bestStreak = Math.max(state.bestStreak||0, state.streak);
+  saveState();
+  stopTimer();
+  closeModal();
+  render();
+}
+
+// VISUALS
+function nearFarVisual(step){
+  const near = step<=1 || step%2===0;
+  return `<div style="display:flex;align-items:center;justify-content:center;gap:28px;width:100%">
+    <div style="text-align:center;opacity:${near?1:0.3};transition:opacity 0.5s">
+      <div style="width:44px;height:44px;border-radius:50%;background:${near?'#4ade80':'#334155'};margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:20px;transition:background 0.5s">👍</div>
+      <div style="color:#94a3b8;font-size:11px">NEAR 10cm</div>
+    </div>
+    <div style="display:flex;gap:5px">${[0,1,2,3,4].map(()=>`<div style="width:5px;height:5px;border-radius:50%;background:#334155"></div>`).join('')}</div>
+    <div style="text-align:center;opacity:${!near?1:0.3};transition:opacity 0.5s">
+      <div style="width:56px;height:56px;border-radius:50%;background:${!near?'#60a5fa':'#1e293b'};border:2px solid #334155;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:20px;transition:background 0.5s">🌄</div>
+      <div style="color:#94a3b8;font-size:11px">FAR 6m+</div>
+    </div>
+  </div>`;
+}
+
+function pencilVisual(step){
+  const pct = step<=1?90:step<=3?40:step<=4?20:90;
+  return `<div style="width:100%;text-align:center">
+    <div style="font-size:11px;color:#94a3b8;margin-bottom:6px">YOUR NOSE ←</div>
+    <div style="position:relative;width:100%;height:32px;background:#1e293b;border-radius:6px">
+      <div style="position:absolute;top:50%;transform:translateY(-50%);left:${pct}%;transition:left 0.6s ease;font-size:22px">✏️</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:4px">
+      <span style="font-size:10px;color:#60a5fa">← NEAR</span>
+      <span style="font-size:10px;color:#60a5fa">FAR →</span>
+    </div>
+  </div>`;
+}
+
+function figure8Visual(){
+  return `<svg id="fig8svg" width="200" height="90" viewBox="0 0 200 90">
+    <path d="M100,45 C100,22 165,22 165,45 C165,68 100,68 100,45 C100,22 35,22 35,45 C35,68 100,68 100,45" fill="none" stroke="#334155" stroke-width="2"/>
+    <circle id="fig8dot" cx="100" cy="45" r="7" fill="#f472b6"/>
+  </svg>`;
+}
+
+function fig8Animate(){
+  if(fig8Interval) clearInterval(fig8Interval);
+  fig8T = 0;
+  fig8Interval = setInterval(()=>{
+    fig8T += 0.025;
+    const dot = document.getElementById('fig8dot');
+    if(dot){
+      const x = 100 + 65*Math.sin(fig8T);
+      const y = 45 + 23*Math.sin(2*fig8T);
+      dot.setAttribute('cx',x); dot.setAttribute('cy',y);
+    }
+  },30);
+}
+
+function twentyVisual(step){
+  return `<div style="text-align:center">
+    <div style="font-size:52px;font-weight:900;color:${step>=2?'#fb923c':'#334155'};transition:color 0.5s;font-variant-numeric:tabular-nums">20</div>
+    <div style="font-size:12px;color:#64748b;margin-top:4px">seconds · 20 feet · every 20 min</div>
+  </div>`;
+}
+
+function palmingVisual(step){
+  return `<div style="font-size:44px;opacity:${step>=2?1:0.3};transition:opacity 0.5s;transform:scaleX(-1)">🤲</div>`;
+}
+
+function getVisual(ex, step){
+  if(ex.visual==='near-far') return nearFarVisual(step);
+  if(ex.visual==='pencil') return pencilVisual(step);
+  if(ex.visual==='figure8') return figure8Visual();
+  if(ex.visual==='2020') return twentyVisual(step);
+  if(ex.visual==='palming') return palmingVisual(step);
+  return '';
+}
+
+// MODAL
+function openModal(ex){
+  if(fig8Interval){ clearInterval(fig8Interval); fig8Interval=null; }
+  activeEx = ex;
+  currentStep = 0;
+  timerVal = ex.duration;
+  timerMax = ex.duration;
+  timerRunning = false;
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+
+  document.getElementById('mIcon').textContent = ex.icon;
+  document.getElementById('mTitle').textContent = ex.name;
+  const tag = document.getElementById('mTag');
+  tag.textContent = ex.tag;
+  tag.style.background = ex.tagColor+'22';
+  tag.style.color = ex.tagColor;
+  const why = document.getElementById('mWhy');
+  why.textContent = ex.why;
+  why.style.background = ex.tagColor+'11';
+  why.style.borderLeftColor = ex.tagColor;
+
+  document.getElementById('timerArc').style.stroke = ex.tagColor;
+  document.getElementById('btnStart').style.background = ex.tagColor;
+
+  updateModalStep();
+  updateTimerDisplay();
+
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  if(ex.visual==='figure8') setTimeout(fig8Animate,100);
+}
+
+function closeModal(){
+  stopTimer();
+  if(fig8Interval){ clearInterval(fig8Interval); fig8Interval=null; }
+  document.getElementById('modalOverlay').classList.add('hidden');
+  activeEx=null;
+}
+
+function handleOverlayClick(e){
+  if(e.target===document.getElementById('modalOverlay')) closeModal();
+}
+
+function updateModalStep(){
+  const ex = activeEx;
+  const total = ex.steps.length;
+  document.getElementById('mStepLabel').textContent = `STEP ${currentStep+1} OF ${total}`;
+  document.getElementById('mStepPct').textContent = Math.round((currentStep/(total-1))*100)+'%';
+  document.getElementById('mStepPct').style.color = ex.tagColor;
+  document.getElementById('mStepText').textContent = ex.steps[currentStep];
+  document.getElementById('btnPrev').style.color = currentStep===0?'#334155':'#94a3b8';
+  document.getElementById('btnNext').style.color = currentStep===total-1?'#334155':'#e2e8f0';
+  document.getElementById('mVisual').innerHTML = getVisual(ex, currentStep);
+  if(ex.visual==='figure8') setTimeout(fig8Animate,50);
+}
+
+function prevStep(){ if(currentStep>0){ currentStep--; updateModalStep(); } }
+function nextStep(){ if(currentStep<activeEx.steps.length-1){ currentStep++; updateModalStep(); } }
+
+function toggleTimer(){
+  if(timerRunning){ stopTimer(); }
+  else { startTimer(); }
+}
+
+function startTimer(){
+  if(timerVal===0) return;
+  timerRunning=true;
+  document.getElementById('btnStart').textContent='⏸ Pause';
+  document.getElementById('btnStart').style.background='#334155';
+  document.getElementById('btnStart').style.color='#94a3b8';
+  timerInterval = setInterval(()=>{
+    timerVal--;
+    updateTimerDisplay();
+    if(timerVal<=0){ stopTimer(); }
+  },1000);
+}
+
+function stopTimer(){
+  timerRunning=false;
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+  if(activeEx){
+    document.getElementById('btnStart').textContent = timerVal===timerMax?'▶ Start Timer':'▶ Resume';
+    document.getElementById('btnStart').style.background = activeEx.tagColor;
+    document.getElementById('btnStart').style.color = '#0f172a';
+  }
+}
+
+function updateTimerDisplay(){
+  const m=String(Math.floor(timerVal/60)).padStart(2,'0');
+  const s=String(timerVal%60).padStart(2,'0');
+  document.getElementById('timerText').textContent=`${m}:${s}`;
+  const circ=226.2;
+  const progress = 1-(timerVal/timerMax);
+  document.getElementById('timerArc').style.strokeDashoffset = circ*(1-progress);
+}
+
+// RENDER
+function render(){
+  renderHeader();
+  if(currentTab==='today') renderToday();
+  else renderProgress();
+}
+
+function renderHeader(){
+  const today = todayKey();
+  const doneToday = (state.log[today]||[]).length;
+  document.getElementById('streakNum').textContent = state.streak||0;
+  document.getElementById('statToday').textContent = `${doneToday}/5`;
+  document.getElementById('statTotal').textContent = Object.values(state.log).reduce((a,v)=>a+v.length,0);
+  document.getElementById('statStreak2').textContent = state.bestStreak||0;
+}
+
+function renderToday(){
+  const today = todayKey();
+  const doneToday = state.log[today]||[];
+  const allDone = doneToday.length===EXERCISES.length;
+  let html='';
+  if(allDone){
+    html+=`<div class="all-done"><span style="font-size:28px">🎉</span><div class="all-done-text"><h3>All done for today!</h3><p>Rest your eyes. Come back tomorrow.</p></div></div>`;
+  }
+  html+=`<div id="installBanner" class="install-banner ${deferredPrompt?'':'hidden'}">
+    <div class="install-text">📱 Install Eye Trainer on your home screen for quick daily access.</div>
+    <button class="install-btn" onclick="installPWA()">Install</button>
+  </div>`;
+  EXERCISES.forEach(ex=>{
+    const done = doneToday.includes(ex.id);
+    html+=`<div class="ex-card ${done?'done':''}" onclick="${done?'':(`openModal(EXERCISES[${ex.id-1}])`)}">
+      <div class="ex-icon">${ex.icon}</div>
+      <div class="ex-info">
+        <div class="ex-name-row">
+          <span class="ex-name ${done?'done':''}">${ex.name}</span>
+          <span class="ex-tag" style="background:${ex.tagColor}22;color:${ex.tagColor}">${ex.tag}</span>
+        </div>
+        <div class="ex-meta">${Math.floor(ex.duration/60)}:${String(ex.duration%60).padStart(2,'0')} · ${ex.steps.length} steps</div>
+      </div>
+      <div class="ex-check ${done?'done':'todo'}">${done?'✓':'›'}</div>
+    </div>`;
+  });
+  document.getElementById('content').innerHTML=html;
+}
+
+function renderProgress(){
+  const today = todayKey();
+  const days=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const key=d.toISOString().slice(0,10);
+    const count=(state.log[key]||[]).length;
+    days.push({key,count,label:d.toLocaleDateString('en-US',{weekday:'short'})});
+  }
+  const weekHtml=days.map(d=>{
+    const bg=d.count===0?'#1e293b':d.count<3?'#14532d':d.count<5?'#166534':'#4ade80';
+    const col=d.count>0?'#fff':'#475569';
+    return `<div class="day-cell">
+      <div class="day-box" style="background:${bg};color:${col}">${d.count||''}</div>
+      <div class="day-lbl">${d.label}</div>
+    </div>`;
+  }).join('');
+
+  const totalDays=Math.max(1,Object.keys(state.log).length);
+  const barsHtml=EXERCISES.map(ex=>{
+    const completions=Object.values(state.log).filter(v=>v.includes(ex.id)).length;
+    const pct=Math.min(100,(completions/totalDays)*100);
+    return `<div class="bar-row">
+      <div class="bar-top"><span class="bar-name">${ex.icon} ${ex.name}</span><span class="bar-count">${completions}×</span></div>
+      <div class="bar-track"><div class="bar-fill" style="background:${ex.tagColor};width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('content').innerHTML=`
+    <div class="section-card">
+      <div class="section-title">LAST 7 DAYS</div>
+      <div class="week-grid">${weekHtml}</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#4ade80"></div>5 exercises</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#166534"></div>1–4</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1e293b"></div>Rest day</div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title">EXERCISE BREAKDOWN</div>
+      ${barsHtml}
+    </div>
+    <div class="reminder-box">
+      <div class="reminder-label">⚠️ REMINDER</div>
+      <div class="reminder-text">These exercises target eye comfort and muscle coordination. They are <strong style="color:#f1f5f9">not a substitute</strong> for corrective lenses (+3 / +2.5). Track your reading comfort over 4–8 weeks and discuss any changes with your optometrist.</div>
+    </div>`;
+}
+
+function switchTab(tab){
+  currentTab=tab;
+  document.getElementById('tabToday').className=`tab-btn ${tab==='today'?'active':'inactive'}`;
+  document.getElementById('tabProgress').className=`tab-btn ${tab==='progress'?'active':'inactive'}`;
+  render();
+}
+
+// PWA INSTALL
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  const banner=document.getElementById('installBanner');
+  if(banner) banner.classList.remove('hidden');
+});
+
+function installPWA(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; });
+}
+
+window.addEventListener('appinstalled',()=>{
+  const banner=document.getElementById('installBanner');
+  if(banner) banner.classList.add('hidden');
+});
+
+// INIT
+loadState();
+render();
+
+// Service Worker registration
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
