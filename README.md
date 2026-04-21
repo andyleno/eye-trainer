@@ -103,15 +103,16 @@ This app was built to personally investigate whether a consistent daily eye exer
 
 ## 🗺️ Roadmap
 
-Planned enhancements for future versions:
-
-- [ ] Push notifications / daily reminders
-- [ ] Custom exercise duration settings
-- [ ] Journal / notes per session
-- [ ] Visual acuity self-assessment log
-- [ ] Export data as CSV
+- [x] Push notifications / daily reminders
+- [x] Custom exercise duration settings
+- [x] Journal / notes per session (with mood rating)
+- [x] Visual acuity self-assessment log with trend chart
+- [x] Export all data as CSV
+- [x] Dark / light theme toggle
+- [x] Personalisation (name, prescription, goal, onboarding)
+- [x] Audio — timer tones + spoken voice cues (Web Speech API)
 - [ ] App icon assets (192px + 512px PNG)
-- [ ] Dark/light theme toggle
+- [ ] Background push notifications via Service Worker
 
 ---
 

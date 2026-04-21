@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<meta name="theme-color" content="#060d1a"/>
+<meta name="theme-color" content="#060d1a" id="themeColorMeta"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="Eye Trainer"/>
@@ -13,176 +13,251 @@
 <title>Eye Trainer</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-  html,body{height:100%;background:#060d1a;color:#f1f5f9;font-family:'DM Sans',sans-serif;overflow-x:hidden;}
-  button{font-family:'DM Sans',sans-serif;cursor:pointer;}
-  button:focus{outline:none;}
-  ::-webkit-scrollbar{width:3px;}
-  ::-webkit-scrollbar-thumb{background:#334155;border-radius:2px;}
+:root{
+  --bg:#060d1a;--bg2:#0f172a;--bg3:#1e293b;--bg4:#0d1b35;
+  --border:#1e293b;--border2:#334155;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;--text4:#475569;
+  --green:#4ade80;--green-dark:#166534;--green-darker:#14532d;--green-dim:#86efac;
+  --blue:#60a5fa;--pink:#f472b6;--orange:#fb923c;--purple:#a78bfa;
+  --card-done-bg:#0a1f0a;--card-done-border:#166534;
+}
+[data-theme="light"]{
+  --bg:#f0f4ff;--bg2:#ffffff;--bg3:#e8edf5;--bg4:#dbeafe;
+  --border:#cbd5e1;--border2:#94a3b8;
+  --text:#0f172a;--text2:#334155;--text3:#475569;--text4:#64748b;
+  --card-done-bg:#f0fdf4;--card-done-border:#86efac;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;transition:background 0.3s,color 0.3s;}
+button{font-family:'DM Sans',sans-serif;cursor:pointer;}
+button:focus{outline:none;}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+#app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
 
-  #app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+.header{background:linear-gradient(160deg,var(--bg4) 0%,var(--bg) 100%);padding:env(safe-area-inset-top,24px) 20px 18px;border-bottom:1px solid var(--border);}
+.header-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.header-eyebrow{font-size:10px;color:var(--green);letter-spacing:3px;font-weight:600;margin-bottom:3px;}
+.header-title{font-size:22px;font-family:'DM Serif Display',serif;line-height:1.2;}
+.header-greeting{font-size:12px;color:var(--text3);margin-top:3px;}
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+.streak-num{font-size:26px;font-weight:700;color:var(--green);}
+.streak-label{font-size:10px;color:var(--text3);}
+.header-icons{display:flex;gap:6px;}
+.icon-btn{background:var(--bg2);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.stats-row{display:flex;gap:8px;margin-top:14px;}
+.stat-card{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:9px 11px;}
+.stat-val{font-size:16px;font-weight:700;}
+.stat-lbl{font-size:10px;color:var(--text4);margin-top:1px;}
 
-  /* HEADER */
-  .header{background:linear-gradient(160deg,#0d1b35 0%,#060d1a 100%);padding:env(safe-area-inset-top,24px) 20px 20px;border-bottom:1px solid #1e293b;}
-  .header-top{display:flex;justify-content:space-between;align-items:flex-start;}
-  .header-eyebrow{font-size:10px;color:#4ade80;letter-spacing:3px;font-weight:600;margin-bottom:4px;}
-  .header-title{font-size:26px;font-family:'DM Serif Display',serif;line-height:1.2;}
-  .streak-box{text-align:right;}
-  .streak-num{font-size:30px;font-weight:700;color:#4ade80;}
-  .streak-label{font-size:10px;color:#64748b;}
-  .stats-row{display:flex;gap:10px;margin-top:16px;}
-  .stat-card{flex:1;background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:10px 12px;}
-  .stat-val{font-size:17px;font-weight:700;}
-  .stat-lbl{font-size:10px;color:#475569;margin-top:2px;}
+.tabs{padding:12px 20px 0;background:var(--bg);}
+.tab-bar{display:flex;gap:3px;background:var(--bg2);border-radius:10px;padding:4px;}
+.tab-btn{flex:1;padding:7px 0;border-radius:7px;border:none;font-weight:600;font-size:11px;background:none;color:var(--text4);transition:all 0.2s;}
+.tab-btn.active{background:var(--bg3);color:var(--text);}
 
-  /* TABS */
-  .tabs{padding:14px 20px 0;background:#060d1a;}
-  .tab-bar{display:flex;gap:4px;background:#0f172a;border-radius:10px;padding:4px;}
-  .tab-btn{flex:1;padding:8px 0;border-radius:8px;border:none;font-weight:600;font-size:13px;transition:background 0.2s,color 0.2s;}
-  .tab-btn.active{background:#1e293b;color:#f1f5f9;}
-  .tab-btn.inactive{background:none;color:#475569;}
+.content{flex:1;padding:14px 20px 80px;}
 
-  /* CONTENT */
-  .content{flex:1;padding:16px 20px 80px;}
+.ex-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:14px 15px;display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:pointer;transition:all 0.2s;}
+.ex-card.done{background:var(--card-done-bg);border-color:var(--card-done-border);}
+.ex-icon{font-size:24px;flex-shrink:0;}
+.ex-info{flex:1;}
+.ex-name-row{display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap;}
+.ex-name{font-weight:600;font-size:14px;}
+.ex-name.done{color:var(--green-dim);}
+.ex-tag{font-size:10px;padding:1px 7px;border-radius:20px;font-weight:600;}
+.ex-meta{font-size:11px;color:var(--text3);}
+.ex-check{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;}
+.ex-check.done{background:var(--green);color:#0f172a;}
+.ex-check.todo{border:2px solid var(--border2);color:var(--text4);}
 
-  /* EXERCISE CARDS */
-  .ex-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:12px;cursor:pointer;transition:border-color 0.2s,background 0.2s;}
-  .ex-card.done{background:#0a1f0a;border-color:#166534;}
-  .ex-icon{font-size:26px;flex-shrink:0;}
-  .ex-info{flex:1;}
-  .ex-name-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
-  .ex-name{font-weight:600;font-size:15px;}
-  .ex-name.done{color:#86efac;}
-  .ex-tag{font-size:10px;padding:1px 7px;border-radius:20px;font-weight:600;}
-  .ex-meta{font-size:12px;color:#64748b;}
-  .ex-check{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  .ex-check.done{background:#4ade80;color:#0f172a;font-size:14px;}
-  .ex-check.todo{border:2px solid #334155;color:#475569;font-size:14px;}
+.all-done{background:linear-gradient(135deg,var(--green-darker),var(--green-dark));border:1px solid var(--green);border-radius:14px;padding:13px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;}
+.all-done-text h3{font-weight:700;color:var(--green);font-size:14px;}
+.all-done-text p{font-size:13px;color:var(--green-dim);}
 
-  /* ALL DONE BANNER */
-  .all-done{background:linear-gradient(135deg,#14532d,#166534);border:1px solid #4ade80;border-radius:14px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
-  .all-done-text h3{font-weight:700;color:#4ade80;}
-  .all-done-text p{font-size:13px;color:#86efac;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:flex;align-items:flex-end;justify-content:center;z-index:200;}
+.modal-overlay.hidden{display:none;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px 20px calc(env(safe-area-inset-bottom,16px) + 14px);max-height:92vh;overflow-y:auto;}
+.modal-handle{width:38px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text3);font-size:20px;}
+.modal-header{display:flex;align-items:center;gap:11px;margin-bottom:13px;}
+.modal-icon{font-size:26px;}
+.modal-title{font-size:17px;font-weight:700;font-family:'DM Serif Display',serif;}
+.why-box{border-radius:11px;padding:10px 13px;margin-bottom:13px;font-size:13px;color:var(--text2);line-height:1.6;border-left-width:3px;border-left-style:solid;}
+.visual-area{margin-bottom:13px;min-height:76px;display:flex;align-items:center;justify-content:center;}
+.step-counter{display:flex;justify-content:space-between;margin-bottom:6px;}
+.step-label{font-size:11px;color:var(--text3);}
+.step-box{background:var(--bg3);border-radius:8px;padding:11px 13px;font-size:14px;color:var(--text);line-height:1.6;min-height:58px;margin-bottom:9px;}
+.step-nav{display:flex;gap:7px;}
+.step-btn{flex:1;padding:8px 0;background:var(--bg3);border:none;border-radius:8px;font-size:13px;color:var(--text2);}
+.timer-row{display:flex;align-items:center;gap:13px;margin-top:13px;}
+.timer-ring{position:relative;width:84px;height:84px;flex-shrink:0;}
+.timer-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;}
+.timer-digits{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;}
+.timer-mute{font-size:11px;color:var(--text3);cursor:pointer;user-select:none;}
+.timer-actions{flex:1;display:flex;flex-direction:column;gap:8px;}
+.btn-start{padding:10px 0;border:none;border-radius:10px;font-weight:700;font-size:14px;color:#0f172a;transition:background 0.2s;}
+.btn-complete{padding:10px 0;background:none;border:1px solid var(--green);border-radius:10px;color:var(--green);font-weight:700;font-size:14px;}
 
-  /* MODAL */
-  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:flex;align-items:flex-end;justify-content:center;z-index:200;padding:0;}
-  .modal-overlay.hidden{display:none;}
-  .modal{background:#0f172a;border:1px solid #1e293b;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px calc(env(safe-area-inset-bottom,16px) + 16px);max-height:92vh;overflow-y:auto;}
-  .modal-handle{width:40px;height:4px;background:#334155;border-radius:2px;margin:0 auto 20px;}
-  .modal-close{position:absolute;top:20px;right:20px;background:none;border:none;color:#64748b;font-size:22px;}
-  .modal-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
-  .modal-icon{font-size:28px;}
-  .modal-title{font-size:18px;font-weight:700;font-family:'DM Serif Display',serif;}
-  .why-box{border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:#94a3b8;line-height:1.6;border-left-width:3px;border-left-style:solid;}
+.section-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:15px;margin-bottom:12px;}
+.section-title{font-size:11px;color:var(--text3);letter-spacing:2px;margin-bottom:12px;}
+.week-grid{display:flex;gap:5px;justify-content:center;}
+.day-cell{text-align:center;}
+.day-box{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;}
+.day-lbl{font-size:10px;color:var(--text4);margin-top:3px;}
+.legend{display:flex;justify-content:center;gap:12px;margin-top:10px;}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text3);}
+.legend-dot{width:10px;height:10px;border-radius:2px;}
+.bar-row{margin-bottom:10px;}
+.bar-top{display:flex;justify-content:space-between;margin-bottom:4px;}
+.bar-name{font-size:13px;color:var(--text);}
+.bar-count{font-size:12px;color:var(--text3);}
+.bar-track{background:var(--bg3);border-radius:4px;height:5px;}
+.bar-fill{border-radius:4px;height:5px;transition:width 0.6s ease;}
+.reminder-box{background:var(--bg4);border:1px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:12px;}
+.reminder-label{font-size:12px;color:var(--text3);margin-bottom:5px;}
+.reminder-text{font-size:13px;color:var(--text2);line-height:1.6;}
 
-  /* VISUAL AREA */
-  .visual-area{margin-bottom:16px;min-height:80px;display:flex;align-items:center;justify-content:center;}
+.install-banner{background:#0f1f3d;border:1px solid #1e3a8a;border-radius:14px;padding:12px 14px;margin-bottom:12px;display:flex;gap:11px;align-items:center;}
+.install-banner.hidden{display:none;}
+.install-text{flex:1;font-size:13px;color:#93c5fd;line-height:1.5;}
+.install-btn{background:#3b82f6;border:none;border-radius:8px;color:#fff;font-weight:700;font-size:13px;padding:7px 12px;white-space:nowrap;}
 
-  /* STEPS */
-  .step-counter{display:flex;justify-content:space-between;margin-bottom:8px;}
-  .step-label{font-size:12px;color:#64748b;}
-  .step-pct{font-size:12px;}
-  .step-box{background:#1e293b;border-radius:8px;padding:12px 14px;font-size:14px;color:#e2e8f0;line-height:1.6;min-height:64px;margin-bottom:10px;}
-  .step-nav{display:flex;gap:8px;}
-  .step-btn{flex:1;padding:8px 0;background:#1e293b;border:none;border-radius:8px;font-size:13px;}
+.sheet{background:var(--bg2);border:1px solid var(--border);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px 20px calc(env(safe-area-inset-bottom,16px) + 18px);max-height:92vh;overflow-y:auto;}
+.sheet-title{font-size:18px;font-weight:700;font-family:'DM Serif Display',serif;margin-bottom:16px;}
+.settings-group{margin-bottom:18px;}
+.sg-title{font-size:11px;color:var(--text3);letter-spacing:2px;margin-bottom:8px;}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.settings-row:last-child{border-bottom:none;}
+.settings-label{font-size:14px;font-weight:500;}
+.settings-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+.toggle{width:42px;height:23px;border-radius:12px;border:none;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;}
+.toggle-knob{position:absolute;top:2.5px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left 0.2s;}
+.toggle.on{background:var(--green);}
+.toggle.off{background:var(--border2);}
+.toggle.on .toggle-knob{left:22px;}
+.toggle.off .toggle-knob{left:2.5px;}
+.s-input{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:6px 10px;font-size:14px;font-family:'DM Sans',sans-serif;width:130px;text-align:right;}
+.s-select{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:6px 9px;font-size:13px;font-family:'DM Sans',sans-serif;}
+.btn-primary{width:100%;padding:12px;background:var(--green);border:none;border-radius:12px;font-weight:700;font-size:15px;color:#0f172a;margin-top:6px;}
+.btn-secondary{width:100%;padding:10px;background:none;border:1px solid var(--border2);border-radius:12px;font-weight:600;font-size:14px;color:var(--text2);margin-top:8px;}
 
-  /* TIMER */
-  .timer-row{display:flex;align-items:center;gap:14px;margin-top:16px;}
-  .timer-ring{position:relative;width:88px;height:88px;flex-shrink:0;}
-  .timer-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;}
-  .timer-actions{flex:1;display:flex;flex-direction:column;gap:8px;}
-  .btn-start{padding:11px 0;border:none;border-radius:10px;font-weight:700;font-size:14px;color:#0f172a;transition:background 0.2s;}
-  .btn-complete{padding:11px 0;background:none;border:1px solid #4ade80;border-radius:10px;color:#4ade80;font-weight:700;font-size:14px;}
+.journal-entry{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:10px;}
+.journal-date{font-size:11px;color:var(--text3);margin-bottom:5px;}
+.journal-note{font-size:13px;color:var(--text);line-height:1.6;}
+.journal-exercises{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;}
+.journal-tag{font-size:10px;background:var(--bg3);color:var(--text2);padding:2px 7px;border-radius:20px;}
+.journal-rating{font-size:13px;margin:4px 0;}
+textarea{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;width:100%;resize:vertical;min-height:78px;}
+textarea::placeholder{color:var(--text4);}
+.rating-row{display:flex;gap:6px;margin:9px 0;}
+.rating-btn{flex:1;padding:7px 0;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:12px;font-weight:600;transition:all 0.15s;}
+.rating-btn.active{border-color:var(--green);background:var(--green);color:#0f172a;}
 
-  /* PROGRESS TAB */
-  .section-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:18px 16px;margin-bottom:14px;}
-  .section-title{font-size:11px;color:#64748b;letter-spacing:2px;margin-bottom:14px;}
-  .week-grid{display:flex;gap:6px;justify-content:center;}
-  .day-cell{text-align:center;}
-  .day-box{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;}
-  .day-lbl{font-size:10px;color:#475569;margin-top:3px;}
-  .legend{display:flex;justify-content:center;gap:14px;margin-top:12px;}
-  .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#64748b;}
-  .legend-dot{width:10px;height:10px;border-radius:2px;}
-  .bar-row{margin-bottom:12px;}
-  .bar-top{display:flex;justify-content:space-between;margin-bottom:4px;}
-  .bar-name{font-size:13px;color:#cbd5e1;}
-  .bar-count{font-size:12px;color:#64748b;}
-  .bar-track{background:#1e293b;border-radius:4px;height:6px;}
-  .bar-fill{border-radius:4px;height:6px;transition:width 0.6s ease;}
-  .reminder-box{background:#0a1628;border:1px solid #1e293b;border-radius:14px;padding:14px 16px;}
-  .reminder-label{font-size:12px;color:#64748b;margin-bottom:6px;}
-  .reminder-text{font-size:13px;color:#94a3b8;line-height:1.6;}
-
-  /* INSTALL BANNER */
-  .install-banner{background:#0f1f3d;border:1px solid #1e3a8a;border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;gap:12px;align-items:center;}
-  .install-banner.hidden{display:none;}
-  .install-text{flex:1;font-size:13px;color:#93c5fd;line-height:1.5;}
-  .install-btn{background:#3b82f6;border:none;border-radius:8px;color:#fff;font-weight:700;font-size:13px;padding:8px 14px;white-space:nowrap;}
+.onboard-overlay{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;padding:24px;}
+.onboard-overlay.hidden{display:none;}
+.onboard-card{max-width:360px;width:100%;text-align:center;}
+.onboard-icon{font-size:54px;margin-bottom:14px;}
+.onboard-title{font-size:25px;font-family:'DM Serif Display',serif;margin-bottom:7px;}
+.onboard-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:22px;}
+.ob-field{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:11px 15px;font-size:15px;color:var(--text);font-family:'DM Sans',sans-serif;margin-bottom:10px;text-align:left;}
+.ob-field::placeholder{color:var(--text4);}
+.ob-row{display:flex;gap:9px;margin-bottom:10px;}
+.ob-label{font-size:12px;color:var(--text3);text-align:left;margin-bottom:5px;margin-top:2px;}
 </style>
 </head>
 <body>
+
+<div class="onboard-overlay" id="onboardOverlay">
+  <div class="onboard-card">
+    <div class="onboard-icon">👁️</div>
+    <div class="onboard-title">Welcome to<br/><em>Eye Trainer</em></div>
+    <div class="onboard-sub">Let's personalise your experience. You can update everything in Settings anytime.</div>
+    <input class="ob-field" id="obName" placeholder="Your first name" maxlength="30"/>
+    <div class="ob-label">Your prescription (optional)</div>
+    <div class="ob-row">
+      <input class="ob-field" id="obLeft" placeholder="Left e.g. +3.00" style="margin-bottom:0"/>
+      <input class="ob-field" id="obRight" placeholder="Right e.g. +2.50" style="margin-bottom:0"/>
+    </div>
+    <div class="ob-label">Your goal</div>
+    <select class="ob-field" id="obGoal" style="margin-bottom:20px">
+      <option value="reading">Improve reading comfort</option>
+      <option value="strain">Reduce eye strain</option>
+      <option value="general">General eye health</option>
+      <option value="track">Just track exercises</option>
+    </select>
+    <button class="btn-primary" onclick="finishOnboard()">Get Started →</button>
+  </div>
+</div>
+
 <div id="app">
   <div class="header">
     <div class="header-top">
-      <div>
+      <div style="flex:1">
         <div class="header-eyebrow">EYE CARE TRACKER</div>
         <div class="header-title">Daily Vision<br/><em>Exercises</em></div>
+        <div class="header-greeting" id="headerGreeting"></div>
       </div>
-      <div class="streak-box">
-        <div class="streak-num" id="streakNum">0</div>
-        <div class="streak-label">DAY STREAK</div>
+      <div class="header-right">
+        <div class="header-icons">
+          <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Theme">🌙</button>
+          <button class="icon-btn" onclick="openSettings()" title="Settings">⚙️</button>
+        </div>
+        <div style="text-align:right">
+          <div class="streak-num" id="streakNum">0</div>
+          <div class="streak-label">DAY STREAK 🔥</div>
+        </div>
       </div>
     </div>
     <div class="stats-row">
-      <div class="stat-card"><div class="stat-val" id="statToday" style="color:#4ade80">0/5</div><div class="stat-lbl">Done Today</div></div>
-      <div class="stat-card"><div class="stat-val" id="statTotal" style="color:#60a5fa">0</div><div class="stat-lbl">Total Sessions</div></div>
-      <div class="stat-card"><div class="stat-val" id="statStreak2" style="color:#f472b6">0</div><div class="stat-lbl">Best Streak</div></div>
+      <div class="stat-card"><div class="stat-val" id="statToday" style="color:var(--green)">0/5</div><div class="stat-lbl">Done Today</div></div>
+      <div class="stat-card"><div class="stat-val" id="statTotal" style="color:var(--blue)">0</div><div class="stat-lbl">Total Sessions</div></div>
+      <div class="stat-card"><div class="stat-val" id="statStreak2" style="color:var(--pink)">0</div><div class="stat-lbl">Best Streak</div></div>
     </div>
   </div>
 
   <div class="tabs">
     <div class="tab-bar">
-      <button class="tab-btn active" id="tabToday" onclick="switchTab('today')">Today's Exercises</button>
-      <button class="tab-btn inactive" id="tabProgress" onclick="switchTab('progress')">My Progress</button>
+      <button class="tab-btn active" id="tab0" onclick="switchTab('today')">Today</button>
+      <button class="tab-btn" id="tab1" onclick="switchTab('progress')">Progress</button>
+      <button class="tab-btn" id="tab2" onclick="switchTab('journal')">Journal</button>
+      <button class="tab-btn" id="tab3" onclick="switchTab('acuity')">Acuity</button>
     </div>
   </div>
-
   <div class="content" id="content"></div>
 </div>
 
-<!-- MODAL -->
-<div class="modal-overlay hidden" id="modalOverlay" onclick="handleOverlayClick(event)">
-  <div class="modal" id="modal">
+<!-- EXERCISE MODAL -->
+<div class="modal-overlay hidden" id="modalOverlay" onclick="handleOvClick(event,'modalOverlay',closeModal)">
+  <div class="modal">
     <div class="modal-handle"></div>
     <button class="modal-close" onclick="closeModal()">✕</button>
     <div class="modal-header">
       <span class="modal-icon" id="mIcon"></span>
-      <div>
-        <div class="modal-title" id="mTitle"></div>
-        <span class="ex-tag" id="mTag"></span>
-      </div>
+      <div><div class="modal-title" id="mTitle"></div><span class="ex-tag" id="mTag"></span></div>
     </div>
     <div class="why-box" id="mWhy"></div>
     <div class="visual-area" id="mVisual"></div>
     <div class="step-counter">
-      <span class="step-label" id="mStepLabel">STEP 1 OF 6</span>
-      <span class="step-pct" id="mStepPct"></span>
+      <span class="step-label" id="mStepLabel"></span>
+      <span id="mStepPct" style="font-size:12px"></span>
     </div>
     <div class="step-box" id="mStepText"></div>
     <div class="step-nav">
-      <button class="step-btn" id="btnPrev" onclick="prevStep()" style="color:#94a3b8">← Prev</button>
-      <button class="step-btn" id="btnNext" onclick="nextStep()" style="color:#e2e8f0">Next →</button>
+      <button class="step-btn" id="btnPrev" onclick="prevStep()">← Prev</button>
+      <button class="step-btn" id="btnNext" onclick="nextStep()">Next →</button>
     </div>
     <div class="timer-row">
       <div class="timer-ring">
-        <svg width="88" height="88" style="transform:rotate(-90deg)">
-          <circle cx="44" cy="44" r="44" fill="#1e293b"/>
-          <circle cx="44" cy="44" r="36" fill="none" stroke="#1e293b" stroke-width="8"/>
-          <circle id="timerArc" cx="44" cy="44" r="36" fill="none" stroke-width="8"
-            stroke-dasharray="226.2" stroke-dashoffset="226.2" style="transition:stroke-dashoffset 1s linear"/>
+        <svg width="84" height="84" style="transform:rotate(-90deg)">
+          <circle cx="42" cy="42" r="42" fill="var(--bg3)"/>
+          <circle cx="42" cy="42" r="34" fill="none" stroke="var(--bg3)" stroke-width="8"/>
+          <circle id="timerArc" cx="42" cy="42" r="34" fill="none" stroke-width="8"
+            stroke-dasharray="213.6" stroke-dashoffset="213.6" style="transition:stroke-dashoffset 1s linear"/>
         </svg>
-        <div class="timer-text" id="timerText">--:--</div>
+        <div class="timer-text">
+          <div class="timer-digits" id="timerText">--:--</div>
+          <div class="timer-mute" id="timerMuteBtn" onclick="toggleMute()">🔊</div>
+        </div>
       </div>
       <div class="timer-actions">
         <button class="btn-start" id="btnStart" onclick="toggleTimer()">▶ Start Timer</button>
@@ -192,408 +267,647 @@
   </div>
 </div>
 
+<!-- SETTINGS SHEET -->
+<div class="modal-overlay hidden" id="settingsOverlay" onclick="handleOvClick(event,'settingsOverlay',closeSettings)">
+  <div class="sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeSettings()">✕</button>
+    <div class="sheet-title">Settings</div>
+
+    <div class="settings-group">
+      <div class="sg-title">PROFILE</div>
+      <div class="settings-row"><div><div class="settings-label">Name</div></div><input class="s-input" id="sName" placeholder="Your name"/></div>
+      <div class="settings-row"><div><div class="settings-label">Left eye</div></div><input class="s-input" id="sLeft" placeholder="+3.00"/></div>
+      <div class="settings-row"><div><div class="settings-label">Right eye</div></div><input class="s-input" id="sRight" placeholder="+2.50"/></div>
+      <div class="settings-row"><div><div class="settings-label">Goal</div></div>
+        <select class="s-select" id="sGoal">
+          <option value="reading">Reading comfort</option>
+          <option value="strain">Reduce strain</option>
+          <option value="general">General health</option>
+          <option value="track">Just tracking</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="sg-title">AUDIO</div>
+      <div class="settings-row">
+        <div><div class="settings-label">Timer tones</div><div class="settings-sub">Beeps + completion chime</div></div>
+        <button class="toggle off" id="togTones" onclick="toggleSetting('tones','togTones')"><div class="toggle-knob"></div></button>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-label">Voice cues</div><div class="settings-sub">Spoken step instructions</div></div>
+        <button class="toggle off" id="togVoice" onclick="toggleSetting('voice','togVoice')"><div class="toggle-knob"></div></button>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-label">Voice</div></div>
+        <select class="s-select" id="sVoiceLang" onchange="saveSetting('voiceLang',this.value)">
+          <option value="en-IE">English (Ireland)</option>
+          <option value="en-GB">English (UK)</option>
+          <option value="en-US">English (US)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="sg-title">EXERCISE DURATIONS</div>
+      <div id="durSettings"></div>
+    </div>
+
+    <div class="settings-group">
+      <div class="sg-title">NOTIFICATIONS</div>
+      <div class="settings-row">
+        <div><div class="settings-label">Daily reminder</div><div class="settings-sub">Push notification prompt</div></div>
+        <button class="toggle off" id="togReminder" onclick="toggleReminder()"><div class="toggle-knob"></div></button>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-label">Reminder time</div></div>
+        <input class="s-input" type="time" id="sReminderTime" onchange="saveSetting('reminderTime',this.value)" style="width:auto"/>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="sg-title">APPEARANCE</div>
+      <div class="settings-row">
+        <div><div class="settings-label">Dark mode</div></div>
+        <button class="toggle off" id="togTheme" onclick="toggleTheme()"><div class="toggle-knob"></div></button>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="sg-title">DATA</div>
+      <button class="btn-secondary" onclick="exportCSV()">📤 Export all data as CSV</button>
+      <button class="btn-secondary" style="margin-top:6px;color:#f87171;border-color:#f87171" onclick="confirmReset()">🗑 Reset all data</button>
+    </div>
+  </div>
+</div>
+
+<!-- JOURNAL SHEET -->
+<div class="modal-overlay hidden" id="journalOverlay" onclick="handleOvClick(event,'journalOverlay',closeJournal)">
+  <div class="sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeJournal()">✕</button>
+    <div class="sheet-title">Today's Journal</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:7px">HOW DID YOUR EYES FEEL?</div>
+    <div class="rating-row">
+      <button class="rating-btn" onclick="setRating(1)" id="r1">😣 Poor</button>
+      <button class="rating-btn" onclick="setRating(2)" id="r2">😐 OK</button>
+      <button class="rating-btn" onclick="setRating(3)" id="r3">🙂 Good</button>
+      <button class="rating-btn" onclick="setRating(4)" id="r4">😄 Great</button>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin:11px 0 7px">NOTES</div>
+    <textarea id="journalNote" placeholder="Reading comfort today? Any change in focus or eye strain?"></textarea>
+    <button class="btn-primary" onclick="saveJournal()">Save Entry</button>
+  </div>
+</div>
+
 <script>
-const EXERCISES = [
-  {
-    id:1, name:"Near-Far Focus Shifting", icon:"🔭", duration:120, tag:"Core", tagColor:"#4ade80",
-    why:"Trains the ciliary muscle to flex between distances — especially helpful for farsighted eyes that struggle with near focus.",
-    steps:[
-      "Hold your thumb about 10cm (4 inches) from your nose.",
-      "Focus clearly on your thumb for 3 seconds.",
-      "Shift your gaze to a fixed object 6+ metres away.",
-      "Hold focus on the distant object for 3 seconds.",
-      "Repeat the near-far shift 10 times without rushing.",
-      "Blink gently between each shift to keep eyes moist."
-    ],
-    visual:"near-far"
-  },
-  {
-    id:2, name:"Pencil Push-Ups", icon:"✏️", duration:90, tag:"Convergence", tagColor:"#60a5fa",
-    why:"Strengthens convergence — the ability to turn both eyes inward to focus on close objects. Particularly useful for reading difficulties.",
-    steps:[
-      "Hold a pencil (or finger) at arm's length, centred in your vision.",
-      "Focus on the tip until it appears single and clear.",
-      "Slowly bring the pencil toward your nose.",
-      "Stop the moment you see the tip double.",
-      "Hold that position for 2 seconds.",
-      "Slowly move the pencil back to arm's length.",
-      "Repeat 15 times. Rest if your eyes tire."
-    ],
-    visual:"pencil"
-  },
-  {
-    id:3, name:"Figure-8 Tracking", icon:"∞", duration:60, tag:"Mobility", tagColor:"#f472b6",
-    why:"Improves smooth eye movement and oculomotor control, which helps your eyes glide across lines of text more efficiently.",
-    steps:[
-      "Sit comfortably and relax your shoulders.",
-      "Imagine a large figure-8 lying on its side, about 3 metres away.",
-      "Trace the shape slowly with your eyes — no head movement.",
-      "Go clockwise for one full loop (about 8 seconds).",
-      "Reverse direction and trace anti-clockwise.",
-      "Complete 4 sets (2 clockwise, 2 anti-clockwise).",
-      "Keep breathing steadily throughout."
-    ],
-    visual:"figure8"
-  },
-  {
-    id:4, name:"20-20-20 Rule", icon:"⏱", duration:20, tag:"Relief", tagColor:"#fb923c",
-    why:"Reduces eye strain from sustained near work (reading, screens). Gives your ciliary muscles a complete rest cycle.",
-    steps:[
-      "After 20 minutes of reading or screen time, pause.",
-      "Look at something at least 6 metres (20 feet) away.",
-      "Keep your gaze there for a full 20 seconds.",
-      "Blink naturally and let your eyes relax completely.",
-      "Resume reading. Repeat every 20 minutes."
-    ],
-    visual:"2020"
-  },
-  {
-    id:5, name:"Palming", icon:"🙌", duration:120, tag:"Relaxation", tagColor:"#a78bfa",
-    why:"Relaxes tense ciliary and extraocular muscles, reduces photophobia, and gives your visual cortex a rest — great to end a session.",
-    steps:[
-      "Sit at a table and rest your elbows on it.",
-      "Rub your palms together briskly for 10 seconds to warm them.",
-      "Close your eyes gently.",
-      "Cup your warm palms over your closed eyes — no pressure on the eyeballs.",
-      "Breathe slowly and deeply. Enjoy the darkness.",
-      "Hold for 2 minutes. Let any tension melt away.",
-      "Open your eyes slowly and blink a few times."
-    ],
-    visual:"palming"
-  }
+// ─── CONSTANTS & STATE ──────────────────────────────────
+const STORAGE_KEY = 'eyetrainer_v2';
+const DEF = {
+  profile:{name:'',leftEye:'',rightEye:'',goal:'reading'},
+  settings:{tones:true,voice:true,voiceLang:'en-IE',theme:'dark',reminderTime:'09:00',reminderEnabled:false},
+  customDurations:{},
+  log:{},streak:0,bestStreak:0,lastDate:null,
+  journal:{},acuity:[],onboarded:false
+};
+let S = JSON.parse(JSON.stringify(DEF));
+let currentTab='today', activeEx=null, currentStep=0;
+let timerVal=0, timerMax=0, timerRunning=false, timerInterval=null;
+let fig8Int=null, deferredPrompt=null, audioCtx=null;
+let muted=false, journalRating=0;
+
+const EXERCISES=[
+  {id:1,name:'Near-Far Focus Shifting',icon:'🔭',defaultDuration:120,tag:'Core',tagColor:'#4ade80',
+   why:'Trains the ciliary muscle to flex between distances — especially helpful for farsighted eyes that struggle with near focus.',
+   steps:['Hold your thumb about 10cm (4 inches) from your nose.','Focus clearly on your thumb for 3 seconds.','Shift your gaze to a fixed object 6+ metres away.','Hold focus on the distant object for 3 seconds.','Repeat the near-far shift 10 times without rushing.','Blink gently between each shift to keep eyes moist.'],
+   visual:'near-far'},
+  {id:2,name:'Pencil Push-Ups',icon:'✏️',defaultDuration:90,tag:'Convergence',tagColor:'#60a5fa',
+   why:'Strengthens convergence — the ability to turn both eyes inward to focus on close objects. Particularly useful for reading difficulties.',
+   steps:['Hold a pencil (or finger) at arm\'s length, centred in your vision.','Focus on the tip until it appears single and clear.','Slowly bring the pencil toward your nose.','Stop the moment you see the tip double.','Hold that position for 2 seconds.','Slowly move the pencil back to arm\'s length.','Repeat 15 times. Rest if your eyes tire.'],
+   visual:'pencil'},
+  {id:3,name:'Figure-8 Tracking',icon:'∞',defaultDuration:60,tag:'Mobility',tagColor:'#f472b6',
+   why:'Improves smooth eye movement and oculomotor control, which helps your eyes glide across lines of text more efficiently.',
+   steps:['Sit comfortably and relax your shoulders.','Imagine a large figure-8 lying on its side, about 3 metres away.','Trace the shape slowly with your eyes — no head movement.','Go clockwise for one full loop (about 8 seconds).','Reverse direction and trace anti-clockwise.','Complete 4 sets (2 clockwise, 2 anti-clockwise).','Keep breathing steadily throughout.'],
+   visual:'figure8'},
+  {id:4,name:'20-20-20 Rule',icon:'⏱',defaultDuration:20,tag:'Relief',tagColor:'#fb923c',
+   why:'Reduces eye strain from sustained near work (reading, screens). Gives your ciliary muscles a complete rest cycle.',
+   steps:['After 20 minutes of reading or screen time, pause.','Look at something at least 6 metres (20 feet) away.','Keep your gaze there for a full 20 seconds.','Blink naturally and let your eyes relax completely.','Resume reading. Repeat every 20 minutes.'],
+   visual:'2020'},
+  {id:5,name:'Palming',icon:'🙌',defaultDuration:120,tag:'Relaxation',tagColor:'#a78bfa',
+   why:'Relaxes tense ciliary and extraocular muscles and gives your visual cortex a rest — great to end a session.',
+   steps:['Sit at a table and rest your elbows on it.','Rub your palms together briskly for 10 seconds to warm them.','Close your eyes gently.','Cup your warm palms over your closed eyes — no pressure on the eyeballs.','Breathe slowly and deeply. Enjoy the darkness.','Hold for 2 minutes. Let any tension melt away.','Open your eyes slowly and blink a few times.'],
+   visual:'palming'}
 ];
 
-const STORAGE_KEY = "eyetrack_v1";
-let state = {log:{}, streak:0, bestStreak:0, lastDate:null};
-let currentTab = "today";
-let activeEx = null;
-let currentStep = 0;
-let timerVal = 0;
-let timerMax = 0;
-let timerRunning = false;
-let timerInterval = null;
-let fig8Interval = null;
-let fig8T = 0;
-let deferredPrompt = null;
-
+function exDur(ex){ return S.customDurations[ex.id]||ex.defaultDuration; }
 function todayKey(){ return new Date().toISOString().slice(0,10); }
 
+// ─── STORAGE ────────────────────────────────────────────
 function loadState(){
-  try{ const r=localStorage.getItem(STORAGE_KEY); if(r) state=JSON.parse(r); }catch(e){}
+  try{ const r=localStorage.getItem(STORAGE_KEY); if(r) S=Object.assign(JSON.parse(JSON.stringify(DEF)),JSON.parse(r)); }catch(e){}
 }
-function saveState(){ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }catch(e){} }
+function saveState(){ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(S)); }catch(e){} }
 
-function markComplete(){
-  const today = todayKey();
-  if(!state.log[today]) state.log[today]=[];
-  if(!state.log[today].includes(activeEx.id)) state.log[today].push(activeEx.id);
-  const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
-  const yKey = yesterday.toISOString().slice(0,10);
-  if(state.lastDate !== today){
-    const hadYesterday = (state.log[yKey]||[]).length > 0;
-    state.streak = (hadYesterday || state.lastDate===null) ? (state.streak||0)+1 : 1;
-    state.lastDate = today;
-  }
-  state.bestStreak = Math.max(state.bestStreak||0, state.streak);
-  saveState();
-  stopTimer();
-  closeModal();
+// ─── AUDIO ──────────────────────────────────────────────
+function getACtx(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+function tone(freq,dur,vol=0.25,type='sine'){
+  if(muted||!S.settings.tones) return;
+  try{
+    const ctx=getACtx(),osc=ctx.createOscillator(),g=ctx.createGain();
+    osc.connect(g);g.connect(ctx.destination);
+    osc.type=type;osc.frequency.value=freq;
+    g.gain.setValueAtTime(vol,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+dur);
+    osc.start();osc.stop(ctx.currentTime+dur);
+  }catch(e){}
+}
+function playTick(){ tone(880,0.07,0.12); }
+function playMid(){ tone(660,0.14,0.2); }
+function playDone(){
+  if(muted||!S.settings.tones) return;
+  try{
+    const ctx=getACtx();
+    [523,659,784,1047].forEach((f,i)=>{
+      const osc=ctx.createOscillator(),g=ctx.createGain();
+      osc.connect(g);g.connect(ctx.destination);
+      osc.type='sine';osc.frequency.value=f;
+      const t=ctx.currentTime+i*0.13;
+      g.gain.setValueAtTime(0.3,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.3);
+      osc.start(t);osc.stop(t+0.35);
+    });
+  }catch(e){}
+}
+function speak(text){
+  if(muted||!S.settings.voice||!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=S.settings.voiceLang||'en-IE';u.rate=0.9;
+  window.speechSynthesis.speak(u);
+}
+function toggleMute(){
+  muted=!muted;
+  document.getElementById('timerMuteBtn').textContent=muted?'🔇':'🔊';
+  if(muted)window.speechSynthesis&&window.speechSynthesis.cancel();
+}
+
+// ─── ONBOARDING ─────────────────────────────────────────
+function finishOnboard(){
+  S.profile.name=document.getElementById('obName').value.trim()||'Friend';
+  S.profile.leftEye=document.getElementById('obLeft').value.trim();
+  S.profile.rightEye=document.getElementById('obRight').value.trim();
+  S.profile.goal=document.getElementById('obGoal').value;
+  S.onboarded=true; saveState();
+  document.getElementById('onboardOverlay').classList.add('hidden');
   render();
 }
 
-// VISUALS
-function nearFarVisual(step){
-  const near = step<=1 || step%2===0;
-  return `<div style="display:flex;align-items:center;justify-content:center;gap:28px;width:100%">
-    <div style="text-align:center;opacity:${near?1:0.3};transition:opacity 0.5s">
-      <div style="width:44px;height:44px;border-radius:50%;background:${near?'#4ade80':'#334155'};margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:20px;transition:background 0.5s">👍</div>
-      <div style="color:#94a3b8;font-size:11px">NEAR 10cm</div>
-    </div>
-    <div style="display:flex;gap:5px">${[0,1,2,3,4].map(()=>`<div style="width:5px;height:5px;border-radius:50%;background:#334155"></div>`).join('')}</div>
-    <div style="text-align:center;opacity:${!near?1:0.3};transition:opacity 0.5s">
-      <div style="width:56px;height:56px;border-radius:50%;background:${!near?'#60a5fa':'#1e293b'};border:2px solid #334155;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:20px;transition:background 0.5s">🌄</div>
-      <div style="color:#94a3b8;font-size:11px">FAR 6m+</div>
-    </div>
-  </div>`;
+// ─── THEME ──────────────────────────────────────────────
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('themeBtn').textContent=t==='dark'?'🌙':'☀️';
+  setTog('togTheme',t==='dark');
+  document.getElementById('themeColorMeta').content=t==='dark'?'#060d1a':'#f0f4ff';
+}
+function toggleTheme(){
+  S.settings.theme=S.settings.theme==='dark'?'light':'dark';
+  applyTheme(S.settings.theme);saveState();
 }
 
-function pencilVisual(step){
-  const pct = step<=1?90:step<=3?40:step<=4?20:90;
-  return `<div style="width:100%;text-align:center">
-    <div style="font-size:11px;color:#94a3b8;margin-bottom:6px">YOUR NOSE ←</div>
-    <div style="position:relative;width:100%;height:32px;background:#1e293b;border-radius:6px">
-      <div style="position:absolute;top:50%;transform:translateY(-50%);left:${pct}%;transition:left 0.6s ease;font-size:22px">✏️</div>
-    </div>
+// ─── VISUALS ────────────────────────────────────────────
+function vNearFar(step){
+  const near=step<=1||step%2===0;
+  return`<div style="display:flex;align-items:center;justify-content:center;gap:22px;width:100%">
+    <div style="text-align:center;opacity:${near?1:0.28};transition:opacity .5s">
+      <div style="width:42px;height:42px;border-radius:50%;background:${near?'#4ade80':'var(--bg3)'};margin:0 auto 5px;display:flex;align-items:center;justify-content:center;font-size:19px;transition:background .5s">👍</div>
+      <div style="color:var(--text3);font-size:10px">NEAR 10cm</div></div>
+    <div style="display:flex;gap:4px">${'<div style="width:4px;height:4px;border-radius:50%;background:var(--border2)"></div>'.repeat(5)}</div>
+    <div style="text-align:center;opacity:${!near?1:0.28};transition:opacity .5s">
+      <div style="width:50px;height:50px;border-radius:50%;background:${!near?'#60a5fa':'var(--bg3)'};border:2px solid var(--border2);margin:0 auto 5px;display:flex;align-items:center;justify-content:center;font-size:19px;transition:background .5s">🌄</div>
+      <div style="color:var(--text3);font-size:10px">FAR 6m+</div></div></div>`;
+}
+function vPencil(step){
+  const pct=step<=1?88:step<=3?38:step<=4?18:88;
+  return`<div style="width:100%">
+    <div style="font-size:11px;color:var(--text2);margin-bottom:5px;text-align:center">← YOUR NOSE</div>
+    <div style="position:relative;width:100%;height:28px;background:var(--bg3);border-radius:6px">
+      <div style="position:absolute;top:50%;transform:translateY(-50%);left:${pct}%;transition:left .6s ease;font-size:20px">✏️</div></div>
     <div style="display:flex;justify-content:space-between;margin-top:4px">
-      <span style="font-size:10px;color:#60a5fa">← NEAR</span>
-      <span style="font-size:10px;color:#60a5fa">FAR →</span>
-    </div>
-  </div>`;
+      <span style="font-size:10px;color:var(--blue)">← NEAR</span>
+      <span style="font-size:10px;color:var(--blue)">FAR →</span></div></div>`;
 }
-
-function figure8Visual(){
-  return `<svg id="fig8svg" width="200" height="90" viewBox="0 0 200 90">
-    <path d="M100,45 C100,22 165,22 165,45 C165,68 100,68 100,45 C100,22 35,22 35,45 C35,68 100,68 100,45" fill="none" stroke="#334155" stroke-width="2"/>
-    <circle id="fig8dot" cx="100" cy="45" r="7" fill="#f472b6"/>
-  </svg>`;
+function vFig8(){
+  return`<svg id="fig8svg" width="200" height="86" viewBox="0 0 200 86">
+    <path d="M100,43 C100,21 163,21 163,43 C163,65 100,65 100,43 C100,21 37,21 37,43 C37,65 100,65 100,43" fill="none" stroke="var(--border2)" stroke-width="2"/>
+    <circle id="fig8dot" cx="100" cy="43" r="7" fill="#f472b6"/></svg>`;
 }
-
-function fig8Animate(){
-  if(fig8Interval) clearInterval(fig8Interval);
-  fig8T = 0;
-  fig8Interval = setInterval(()=>{
-    fig8T += 0.025;
-    const dot = document.getElementById('fig8dot');
-    if(dot){
-      const x = 100 + 65*Math.sin(fig8T);
-      const y = 45 + 23*Math.sin(2*fig8T);
-      dot.setAttribute('cx',x); dot.setAttribute('cy',y);
-    }
+function vTwenty(step){
+  return`<div style="text-align:center">
+    <div style="font-size:48px;font-weight:900;color:${step>=2?'#fb923c':'var(--border2)'};transition:color .5s">20</div>
+    <div style="font-size:12px;color:var(--text3);margin-top:3px">seconds · 20 feet · every 20 min</div></div>`;
+}
+function vPalm(step){
+  return`<div style="font-size:42px;opacity:${step>=2?1:0.28};transition:opacity .5s;transform:scaleX(-1)">🤲</div>`;
+}
+function getVisual(ex,step){
+  if(ex.visual==='near-far') return vNearFar(step);
+  if(ex.visual==='pencil') return vPencil(step);
+  if(ex.visual==='figure8') return vFig8();
+  if(ex.visual==='2020') return vTwenty(step);
+  if(ex.visual==='palming') return vPalm(step);
+  return'';
+}
+function startFig8(){
+  if(fig8Int) clearInterval(fig8Int);
+  let t=0;
+  fig8Int=setInterval(()=>{
+    t+=0.025;
+    const d=document.getElementById('fig8dot');
+    if(d){d.setAttribute('cx',100+63*Math.sin(t));d.setAttribute('cy',43+22*Math.sin(2*t));}
   },30);
 }
 
-function twentyVisual(step){
-  return `<div style="text-align:center">
-    <div style="font-size:52px;font-weight:900;color:${step>=2?'#fb923c':'#334155'};transition:color 0.5s;font-variant-numeric:tabular-nums">20</div>
-    <div style="font-size:12px;color:#64748b;margin-top:4px">seconds · 20 feet · every 20 min</div>
-  </div>`;
-}
-
-function palmingVisual(step){
-  return `<div style="font-size:44px;opacity:${step>=2?1:0.3};transition:opacity 0.5s;transform:scaleX(-1)">🤲</div>`;
-}
-
-function getVisual(ex, step){
-  if(ex.visual==='near-far') return nearFarVisual(step);
-  if(ex.visual==='pencil') return pencilVisual(step);
-  if(ex.visual==='figure8') return figure8Visual();
-  if(ex.visual==='2020') return twentyVisual(step);
-  if(ex.visual==='palming') return palmingVisual(step);
-  return '';
-}
-
-// MODAL
+// ─── EXERCISE MODAL ─────────────────────────────────────
 function openModal(ex){
-  if(fig8Interval){ clearInterval(fig8Interval); fig8Interval=null; }
-  activeEx = ex;
-  currentStep = 0;
-  timerVal = ex.duration;
-  timerMax = ex.duration;
-  timerRunning = false;
-  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
-
-  document.getElementById('mIcon').textContent = ex.icon;
-  document.getElementById('mTitle').textContent = ex.name;
-  const tag = document.getElementById('mTag');
-  tag.textContent = ex.tag;
-  tag.style.background = ex.tagColor+'22';
-  tag.style.color = ex.tagColor;
-  const why = document.getElementById('mWhy');
-  why.textContent = ex.why;
-  why.style.background = ex.tagColor+'11';
-  why.style.borderLeftColor = ex.tagColor;
-
-  document.getElementById('timerArc').style.stroke = ex.tagColor;
-  document.getElementById('btnStart').style.background = ex.tagColor;
-
-  updateModalStep();
-  updateTimerDisplay();
-
+  if(fig8Int){clearInterval(fig8Int);fig8Int=null;}
+  activeEx=ex;currentStep=0;
+  timerMax=exDur(ex);timerVal=timerMax;
+  timerRunning=false;
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+  document.getElementById('mIcon').textContent=ex.icon;
+  document.getElementById('mTitle').textContent=ex.name;
+  const tag=document.getElementById('mTag');
+  tag.textContent=ex.tag;tag.style.background=ex.tagColor+'22';tag.style.color=ex.tagColor;
+  const why=document.getElementById('mWhy');
+  why.textContent=ex.why;why.style.background=ex.tagColor+'11';why.style.borderLeftColor=ex.tagColor;
+  document.getElementById('timerArc').style.stroke=ex.tagColor;
+  document.getElementById('btnStart').style.background=ex.tagColor;
+  document.getElementById('timerMuteBtn').textContent=muted?'🔇':'🔊';
+  updateStep();updateTimerDisp();
   document.getElementById('modalOverlay').classList.remove('hidden');
-  if(ex.visual==='figure8') setTimeout(fig8Animate,100);
+  if(ex.visual==='figure8') setTimeout(startFig8,100);
+  speak(`Starting ${ex.name}. ${ex.steps[0]}`);
 }
-
 function closeModal(){
   stopTimer();
-  if(fig8Interval){ clearInterval(fig8Interval); fig8Interval=null; }
+  if(fig8Int){clearInterval(fig8Int);fig8Int=null;}
+  window.speechSynthesis&&window.speechSynthesis.cancel();
   document.getElementById('modalOverlay').classList.add('hidden');
   activeEx=null;
 }
-
-function handleOverlayClick(e){
-  if(e.target===document.getElementById('modalOverlay')) closeModal();
+function handleOvClick(e,id,fn){ if(e.target===document.getElementById(id)) fn(); }
+function updateStep(){
+  const ex=activeEx,tot=ex.steps.length;
+  document.getElementById('mStepLabel').textContent=`STEP ${currentStep+1} OF ${tot}`;
+  document.getElementById('mStepPct').textContent=Math.round((currentStep/(tot-1))*100)+'%';
+  document.getElementById('mStepPct').style.color=ex.tagColor;
+  document.getElementById('mStepText').textContent=ex.steps[currentStep];
+  document.getElementById('btnPrev').style.color=currentStep===0?'var(--border2)':'var(--text2)';
+  document.getElementById('btnNext').style.color=currentStep===tot-1?'var(--border2)':'var(--text)';
+  document.getElementById('mVisual').innerHTML=getVisual(ex,currentStep);
+  if(ex.visual==='figure8') setTimeout(startFig8,50);
 }
+function prevStep(){ if(currentStep>0){currentStep--;updateStep();speak(activeEx.steps[currentStep]);} }
+function nextStep(){ if(currentStep<activeEx.steps.length-1){currentStep++;updateStep();speak(activeEx.steps[currentStep]);} }
 
-function updateModalStep(){
-  const ex = activeEx;
-  const total = ex.steps.length;
-  document.getElementById('mStepLabel').textContent = `STEP ${currentStep+1} OF ${total}`;
-  document.getElementById('mStepPct').textContent = Math.round((currentStep/(total-1))*100)+'%';
-  document.getElementById('mStepPct').style.color = ex.tagColor;
-  document.getElementById('mStepText').textContent = ex.steps[currentStep];
-  document.getElementById('btnPrev').style.color = currentStep===0?'#334155':'#94a3b8';
-  document.getElementById('btnNext').style.color = currentStep===total-1?'#334155':'#e2e8f0';
-  document.getElementById('mVisual').innerHTML = getVisual(ex, currentStep);
-  if(ex.visual==='figure8') setTimeout(fig8Animate,50);
-}
-
-function prevStep(){ if(currentStep>0){ currentStep--; updateModalStep(); } }
-function nextStep(){ if(currentStep<activeEx.steps.length-1){ currentStep++; updateModalStep(); } }
-
-function toggleTimer(){
-  if(timerRunning){ stopTimer(); }
-  else { startTimer(); }
-}
-
+// ─── TIMER ──────────────────────────────────────────────
+function toggleTimer(){ timerRunning?stopTimer():startTimer(); }
 function startTimer(){
   if(timerVal===0) return;
   timerRunning=true;
-  document.getElementById('btnStart').textContent='⏸ Pause';
-  document.getElementById('btnStart').style.background='#334155';
-  document.getElementById('btnStart').style.color='#94a3b8';
-  timerInterval = setInterval(()=>{
-    timerVal--;
-    updateTimerDisplay();
-    if(timerVal<=0){ stopTimer(); }
+  const btn=document.getElementById('btnStart');
+  btn.textContent='⏸ Pause';btn.style.background='var(--border2)';btn.style.color='var(--text2)';
+  timerInterval=setInterval(()=>{
+    timerVal--;updateTimerDisp();
+    if(timerVal>0&&timerVal%10===0) playMid();
+    else if(timerVal>0&&timerVal<=5) playTick();
+    if(timerVal===0){playDone();speak('Exercise complete. Well done!');stopTimer();}
   },1000);
 }
-
 function stopTimer(){
   timerRunning=false;
-  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
   if(activeEx){
-    document.getElementById('btnStart').textContent = timerVal===timerMax?'▶ Start Timer':'▶ Resume';
-    document.getElementById('btnStart').style.background = activeEx.tagColor;
-    document.getElementById('btnStart').style.color = '#0f172a';
+    const btn=document.getElementById('btnStart');
+    btn.textContent=timerVal===timerMax?'▶ Start Timer':'▶ Resume';
+    btn.style.background=activeEx.tagColor;btn.style.color='#0f172a';
+  }
+}
+function updateTimerDisp(){
+  const m=String(Math.floor(timerVal/60)).padStart(2,'0'),s=String(timerVal%60).padStart(2,'0');
+  document.getElementById('timerText').textContent=`${m}:${s}`;
+  document.getElementById('timerArc').style.strokeDashoffset=213.6*(timerVal/timerMax);
+}
+function markComplete(){
+  const today=todayKey();
+  if(!S.log[today]) S.log[today]=[];
+  if(!S.log[today].includes(activeEx.id)) S.log[today].push(activeEx.id);
+  const yest=new Date();yest.setDate(yest.getDate()-1);
+  const yKey=yest.toISOString().slice(0,10);
+  if(S.lastDate!==today){
+    S.streak=((S.log[yKey]||[]).length>0||S.lastDate===null)?(S.streak||0)+1:1;
+    S.lastDate=today;
+  }
+  S.bestStreak=Math.max(S.bestStreak||0,S.streak);
+  saveState();playDone();speak(`${activeEx.name} complete. Great work!`);
+  stopTimer();closeModal();render();
+  if((S.log[today]||[]).length===EXERCISES.length&&!S.journal[today]) setTimeout(openJournal,700);
+}
+
+// ─── SETTINGS ───────────────────────────────────────────
+function setTog(id,on){
+  const el=document.getElementById(id);
+  if(el) el.className='toggle '+(on?'on':'off');
+}
+function toggleSetting(key,togId){
+  S.settings[key]=!S.settings[key];
+  setTog(togId,S.settings[key]);saveState();
+}
+function saveSetting(key,val){ S.settings[key]=val;saveState(); }
+function openSettings(){
+  document.getElementById('sName').value=S.profile.name||'';
+  document.getElementById('sLeft').value=S.profile.leftEye||'';
+  document.getElementById('sRight').value=S.profile.rightEye||'';
+  document.getElementById('sGoal').value=S.profile.goal||'reading';
+  document.getElementById('sVoiceLang').value=S.settings.voiceLang||'en-IE';
+  document.getElementById('sReminderTime').value=S.settings.reminderTime||'09:00';
+  setTog('togTones',S.settings.tones);
+  setTog('togVoice',S.settings.voice);
+  setTog('togReminder',S.settings.reminderEnabled);
+  setTog('togTheme',S.settings.theme==='dark');
+  let dh='';
+  EXERCISES.forEach(ex=>{
+    dh+=`<div class="settings-row"><div><div class="settings-label">${ex.icon} ${ex.name}</div></div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input class="s-input" type="number" min="10" max="600" value="${exDur(ex)}" id="dur_${ex.id}" style="width:65px;text-align:center"/>
+        <span style="font-size:12px;color:var(--text3)">sec</span></div></div>`;
+  });
+  document.getElementById('durSettings').innerHTML=dh;
+  document.getElementById('settingsOverlay').classList.remove('hidden');
+}
+function closeSettings(){
+  S.profile.name=document.getElementById('sName').value.trim()||S.profile.name;
+  S.profile.leftEye=document.getElementById('sLeft').value.trim();
+  S.profile.rightEye=document.getElementById('sRight').value.trim();
+  S.profile.goal=document.getElementById('sGoal').value;
+  S.settings.voiceLang=document.getElementById('sVoiceLang').value;
+  EXERCISES.forEach(ex=>{
+    const el=document.getElementById(`dur_${ex.id}`);
+    if(el){const v=parseInt(el.value);if(!isNaN(v)&&v>=10) S.customDurations[ex.id]=v;}
+  });
+  saveState();render();
+  document.getElementById('settingsOverlay').classList.add('hidden');
+}
+function toggleReminder(){
+  if(!S.settings.reminderEnabled){
+    if('Notification' in window){
+      Notification.requestPermission().then(p=>{
+        S.settings.reminderEnabled=p==='granted';
+        setTog('togReminder',S.settings.reminderEnabled);saveState();
+        if(p!=='granted') alert('Enable notifications in your browser/phone settings to use reminders.');
+      });
+    }
+  } else { S.settings.reminderEnabled=false;setTog('togReminder',false);saveState(); }
+}
+function exportCSV(){
+  let csv='Date,Exercise,Completed\n';
+  Object.entries(S.log).sort().forEach(([d,ids])=>{
+    EXERCISES.forEach(ex=>{ csv+=`${d},"${ex.name}",${ids.includes(ex.id)?'Yes':'No'}\n`; });
+  });
+  csv+='\nDate,Feeling,Notes\n';
+  Object.entries(S.journal).sort().forEach(([d,j])=>{
+    const labels={1:'Poor',2:'OK',3:'Good',4:'Great'};
+    csv+=`${d},${labels[j.rating]||''},"${(j.note||'').replace(/"/g,'""')}"\n`;
+  });
+  csv+='\nDate,Left Eye,Right Eye,Notes\n';
+  (S.acuity||[]).forEach(a=>{ csv+=`${a.date},${a.left||''},${a.right||''},"${(a.note||'').replace(/"/g,'""')}"\n`; });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=`eye-trainer-${todayKey()}.csv`;a.click();
+}
+function confirmReset(){
+  if(confirm('Reset ALL data? This cannot be undone.')){
+    S=JSON.parse(JSON.stringify(DEF));saveState();closeSettings();
+    document.getElementById('onboardOverlay').classList.remove('hidden');
   }
 }
 
-function updateTimerDisplay(){
-  const m=String(Math.floor(timerVal/60)).padStart(2,'0');
-  const s=String(timerVal%60).padStart(2,'0');
-  document.getElementById('timerText').textContent=`${m}:${s}`;
-  const circ=226.2;
-  const progress = 1-(timerVal/timerMax);
-  document.getElementById('timerArc').style.strokeDashoffset = circ*(1-progress);
+// ─── JOURNAL ────────────────────────────────────────────
+function openJournal(){
+  const j=S.journal[todayKey()]||{};
+  journalRating=j.rating||0;
+  document.getElementById('journalNote').value=j.note||'';
+  updateRatingBtns();
+  document.getElementById('journalOverlay').classList.remove('hidden');
+}
+function closeJournal(){ document.getElementById('journalOverlay').classList.add('hidden'); }
+function setRating(r){ journalRating=r;updateRatingBtns(); }
+function updateRatingBtns(){
+  [1,2,3,4].forEach(r=>{
+    const b=document.getElementById('r'+r);
+    if(b) b.className='rating-btn'+(r===journalRating?' active':'');
+  });
+}
+function saveJournal(){
+  const today=todayKey();
+  S.journal[today]={rating:journalRating,note:document.getElementById('journalNote').value.trim(),date:today};
+  saveState();closeJournal();
+  if(currentTab==='journal') render();
+  else renderHeader();
 }
 
-// RENDER
+// ─── ACUITY ─────────────────────────────────────────────
+function saveAcuity(){
+  const left=document.getElementById('acLeft').value.trim();
+  const right=document.getElementById('acRight').value.trim();
+  const note=document.getElementById('acNote').value.trim();
+  if(!left&&!right) return;
+  S.acuity=S.acuity||[];
+  S.acuity.push({date:todayKey(),left,right,note});
+  saveState();render();
+}
+
+// ─── RENDER ─────────────────────────────────────────────
+const TABS=['today','progress','journal','acuity'];
+function switchTab(tab){ currentTab=tab;render(); }
 function render(){
   renderHeader();
+  TABS.forEach((t,i)=>{
+    document.getElementById('tab'+i).className='tab-btn'+(currentTab===t?' active':'');
+  });
   if(currentTab==='today') renderToday();
-  else renderProgress();
+  else if(currentTab==='progress') renderProgress();
+  else if(currentTab==='journal') renderJournal();
+  else if(currentTab==='acuity') renderAcuity();
 }
-
 function renderHeader(){
-  const today = todayKey();
-  const doneToday = (state.log[today]||[]).length;
-  document.getElementById('streakNum').textContent = state.streak||0;
-  document.getElementById('statToday').textContent = `${doneToday}/5`;
-  document.getElementById('statTotal').textContent = Object.values(state.log).reduce((a,v)=>a+v.length,0);
-  document.getElementById('statStreak2').textContent = state.bestStreak||0;
-}
-
-function renderToday(){
-  const today = todayKey();
-  const doneToday = state.log[today]||[];
-  const allDone = doneToday.length===EXERCISES.length;
-  let html='';
-  if(allDone){
-    html+=`<div class="all-done"><span style="font-size:28px">🎉</span><div class="all-done-text"><h3>All done for today!</h3><p>Rest your eyes. Come back tomorrow.</p></div></div>`;
+  const today=todayKey(),done=(S.log[today]||[]).length;
+  document.getElementById('streakNum').textContent=S.streak||0;
+  document.getElementById('statToday').textContent=`${done}/5`;
+  document.getElementById('statTotal').textContent=Object.values(S.log).reduce((a,v)=>a+v.length,0);
+  document.getElementById('statStreak2').textContent=S.bestStreak||0;
+  const name=S.profile.name||'';
+  if(name){
+    const h=new Date().getHours();
+    const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+    document.getElementById('headerGreeting').textContent=`${g}, ${name} 👋`;
   }
-  html+=`<div id="installBanner" class="install-banner ${deferredPrompt?'':'hidden'}">
-    <div class="install-text">📱 Install Eye Trainer on your home screen for quick daily access.</div>
-    <button class="install-btn" onclick="installPWA()">Install</button>
-  </div>`;
+  applyTheme(S.settings.theme||'dark');
+}
+function renderToday(){
+  const today=todayKey(),doneToday=S.log[today]||[],allDone=doneToday.length===EXERCISES.length;
+  let h='';
+  if(allDone){
+    const j=S.journal[today];
+    h+=`<div class="all-done"><span style="font-size:26px">🎉</span><div class="all-done-text"><h3>All done for today!</h3><p>${j?'Journal saved ✓':'<span style="cursor:pointer;text-decoration:underline;color:var(--green-dim)" onclick="openJournal()">Add a journal entry →</span>'}</p></div></div>`;
+  }
+  h+=`<div id="installBanner" class="install-banner ${deferredPrompt?'':'hidden'}">
+    <div class="install-text">📱 Install Eye Trainer on your home screen.</div>
+    <button class="install-btn" onclick="installPWA()">Install</button></div>`;
   EXERCISES.forEach(ex=>{
-    const done = doneToday.includes(ex.id);
-    html+=`<div class="ex-card ${done?'done':''}" onclick="${done?'':(`openModal(EXERCISES[${ex.id-1}])`)}">
+    const done=doneToday.includes(ex.id),dur=exDur(ex);
+    h+=`<div class="ex-card ${done?'done':''}" onclick="${done?'':(`openModal(EXERCISES[${ex.id-1}])`)}">
       <div class="ex-icon">${ex.icon}</div>
       <div class="ex-info">
         <div class="ex-name-row">
           <span class="ex-name ${done?'done':''}">${ex.name}</span>
           <span class="ex-tag" style="background:${ex.tagColor}22;color:${ex.tagColor}">${ex.tag}</span>
         </div>
-        <div class="ex-meta">${Math.floor(ex.duration/60)}:${String(ex.duration%60).padStart(2,'0')} · ${ex.steps.length} steps</div>
+        <div class="ex-meta">${Math.floor(dur/60)}:${String(dur%60).padStart(2,'0')} · ${ex.steps.length} steps</div>
       </div>
-      <div class="ex-check ${done?'done':'todo'}">${done?'✓':'›'}</div>
-    </div>`;
+      <div class="ex-check ${done?'done':'todo'}">${done?'✓':'›'}</div></div>`;
   });
-  document.getElementById('content').innerHTML=html;
+  document.getElementById('content').innerHTML=h;
 }
-
 function renderProgress(){
-  const today = todayKey();
   const days=[];
   for(let i=6;i>=0;i--){
-    const d=new Date(); d.setDate(d.getDate()-i);
+    const d=new Date();d.setDate(d.getDate()-i);
     const key=d.toISOString().slice(0,10);
-    const count=(state.log[key]||[]).length;
-    days.push({key,count,label:d.toLocaleDateString('en-US',{weekday:'short'})});
+    days.push({count:(S.log[key]||[]).length,label:d.toLocaleDateString('en-IE',{weekday:'short'})});
   }
-  const weekHtml=days.map(d=>{
-    const bg=d.count===0?'#1e293b':d.count<3?'#14532d':d.count<5?'#166534':'#4ade80';
-    const col=d.count>0?'#fff':'#475569';
-    return `<div class="day-cell">
-      <div class="day-box" style="background:${bg};color:${col}">${d.count||''}</div>
-      <div class="day-lbl">${d.label}</div>
-    </div>`;
+  const weekH=days.map(d=>{
+    const bg=d.count===0?'var(--bg3)':d.count<3?'#14532d':d.count<5?'#166534':'#4ade80';
+    return`<div class="day-cell"><div class="day-box" style="background:${bg};color:${d.count>0?'#fff':'var(--text4)'}">${d.count||''}</div><div class="day-lbl">${d.label}</div></div>`;
   }).join('');
-
-  const totalDays=Math.max(1,Object.keys(state.log).length);
-  const barsHtml=EXERCISES.map(ex=>{
-    const completions=Object.values(state.log).filter(v=>v.includes(ex.id)).length;
-    const pct=Math.min(100,(completions/totalDays)*100);
-    return `<div class="bar-row">
-      <div class="bar-top"><span class="bar-name">${ex.icon} ${ex.name}</span><span class="bar-count">${completions}×</span></div>
-      <div class="bar-track"><div class="bar-fill" style="background:${ex.tagColor};width:${pct}%"></div></div>
-    </div>`;
+  const tot=Math.max(1,Object.keys(S.log).length);
+  const barsH=EXERCISES.map(ex=>{
+    const c=Object.values(S.log).filter(v=>v.includes(ex.id)).length;
+    return`<div class="bar-row"><div class="bar-top"><span class="bar-name">${ex.icon} ${ex.name}</span><span class="bar-count">${c}×</span></div><div class="bar-track"><div class="bar-fill" style="background:${ex.tagColor};width:${Math.min(100,(c/tot)*100)}%"></div></div></div>`;
   }).join('');
-
+  const rx=S.profile.leftEye&&S.profile.rightEye?`Left ${S.profile.leftEye} · Right ${S.profile.rightEye}`:'(no prescription saved)';
+  const goalMap={reading:'Improve reading comfort',strain:'Reduce eye strain',general:'General eye health',track:'Just tracking'};
   document.getElementById('content').innerHTML=`
-    <div class="section-card">
-      <div class="section-title">LAST 7 DAYS</div>
-      <div class="week-grid">${weekHtml}</div>
+    <div class="section-card"><div class="section-title">LAST 7 DAYS</div>
+      <div class="week-grid">${weekH}</div>
       <div class="legend">
-        <div class="legend-item"><div class="legend-dot" style="background:#4ade80"></div>5 exercises</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#4ade80"></div>5 done</div>
         <div class="legend-item"><div class="legend-dot" style="background:#166534"></div>1–4</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#1e293b"></div>Rest day</div>
-      </div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--bg3)"></div>Rest</div>
+      </div></div>
+    <div class="section-card"><div class="section-title">EXERCISE BREAKDOWN</div>${barsH}</div>
+    <div class="reminder-box"><div class="reminder-label">👤 YOUR PROFILE</div>
+      <div class="reminder-text">
+        Goal: <strong style="color:var(--text)">${goalMap[S.profile.goal]||'—'}</strong><br/>
+        Prescription: <strong style="color:var(--text)">${rx}</strong><br/><br/>
+        These exercises target comfort and coordination — not a substitute for corrective lenses. Track over 4–8 weeks and discuss with your optometrist.
+      </div></div>`;
+}
+function renderJournal(){
+  const entries=Object.entries(S.journal).sort((a,b)=>b[0].localeCompare(a[0]));
+  const rl={1:'😣 Poor',2:'😐 OK',3:'🙂 Good',4:'😄 Great'};
+  let h=`<button class="btn-primary" style="margin-bottom:14px" onclick="openJournal()">+ Add Today's Entry</button>`;
+  if(!entries.length){
+    h+=`<div class="reminder-box" style="text-align:center;padding:26px 16px"><div style="font-size:30px;margin-bottom:9px">📓</div><div style="font-size:13px;color:var(--text2)">No entries yet.<br/>After your exercises, record how your eyes felt.</div></div>`;
+  } else {
+    entries.forEach(([date,j])=>{
+      const done=S.log[date]||[];
+      const tags=EXERCISES.filter(e=>done.includes(e.id)).map(e=>`<span class="journal-tag">${e.icon} ${e.name}</span>`).join('');
+      h+=`<div class="journal-entry">
+        <div class="journal-date">${new Date(date+'T12:00:00').toLocaleDateString('en-IE',{weekday:'long',day:'numeric',month:'long'})}</div>
+        ${j.rating?`<div class="journal-rating">${rl[j.rating]||''}</div>`:''}
+        ${j.note?`<div class="journal-note">${j.note}</div>`:''}
+        ${tags?`<div class="journal-exercises">${tags}</div>`:''}
+      </div>`;
+    });
+  }
+  document.getElementById('content').innerHTML=h;
+}
+function renderAcuity(){
+  const entries=(S.acuity||[]).slice().reverse();
+  let h=`<div class="section-card">
+    <div class="section-title">LOG SELF-ASSESSMENT</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6">Rate clarity when reading small text at arm's length (1 = very blurry, 10 = crystal clear).</div>
+    <div style="display:flex;gap:10px;margin-bottom:10px">
+      <div style="flex:1"><div style="font-size:11px;color:var(--text3);margin-bottom:5px">LEFT EYE (1–10)</div><input id="acLeft" type="number" min="1" max="10" class="s-input" placeholder="e.g. 6" style="width:100%;text-align:left"/></div>
+      <div style="flex:1"><div style="font-size:11px;color:var(--text3);margin-bottom:5px">RIGHT EYE (1–10)</div><input id="acRight" type="number" min="1" max="10" class="s-input" placeholder="e.g. 7" style="width:100%;text-align:left"/></div>
     </div>
-    <div class="section-card">
-      <div class="section-title">EXERCISE BREAKDOWN</div>
-      ${barsHtml}
-    </div>
-    <div class="reminder-box">
-      <div class="reminder-label">⚠️ REMINDER</div>
-      <div class="reminder-text">These exercises target eye comfort and muscle coordination. They are <strong style="color:#f1f5f9">not a substitute</strong> for corrective lenses (+3 / +2.5). Track your reading comfort over 4–8 weeks and discuss any changes with your optometrist.</div>
-    </div>`;
+    <textarea id="acNote" placeholder="Optional: reading distance, lighting, time of day…" style="min-height:58px"></textarea>
+    <button class="btn-primary" style="margin-top:9px" onclick="saveAcuity()">Save Assessment</button>
+  </div>`;
+  if(entries.length>1){
+    const pts=entries.slice(0,14).reverse();
+    const lv=pts.map(p=>parseFloat(p.left)||null);
+    const rv=pts.map(p=>parseFloat(p.right)||null);
+    const W=300,H=80,P=10;
+    const sx=i=>(i/(pts.length-1))*(W-P*2)+P;
+    const sy=v=>H-P-((v-1)/9)*(H-P*2);
+    const polyL=lv.map((v,i)=>v!=null?`${sx(i)},${sy(v)}`:null).filter(Boolean).join(' ');
+    const polyR=rv.map((v,i)=>v!=null?`${sx(i)},${sy(v)}`:null).filter(Boolean).join(' ');
+    h+=`<div class="section-card">
+      <div class="section-title">CLARITY TREND</div>
+      <svg width="100%" viewBox="0 0 ${W} ${H}" style="overflow:visible">
+        <line x1="${P}" y1="${P}" x2="${P}" y2="${H-P}" stroke="var(--border)" stroke-width="1"/>
+        <line x1="${P}" y1="${H-P}" x2="${W-P}" y2="${H-P}" stroke="var(--border)" stroke-width="1"/>
+        ${[1,5,10].map(v=>`<text x="${P-3}" y="${sy(v)+4}" font-size="8" fill="var(--text3)" text-anchor="end">${v}</text>`).join('')}
+        ${polyL?`<polyline points="${polyL}" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`:''}
+        ${polyR?`<polyline points="${polyR}" fill="none" stroke="#f472b6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`:''}
+        ${lv.map((v,i)=>v!=null?`<circle cx="${sx(i)}" cy="${sy(v)}" r="3" fill="#60a5fa"/>`:'').join('')}
+        ${rv.map((v,i)=>v!=null?`<circle cx="${sx(i)}" cy="${sy(v)}" r="3" fill="#f472b6"/>`:'').join('')}
+      </svg>
+      <div style="display:flex;gap:14px;margin-top:7px">
+        <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)"><div style="width:12px;height:2px;background:#60a5fa;border-radius:1px"></div>Left</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)"><div style="width:12px;height:2px;background:#f472b6;border-radius:1px"></div>Right</div>
+      </div></div>`;
+  }
+  if(entries.length){
+    h+=`<div class="section-card"><div class="section-title">HISTORY</div>`;
+    entries.slice(0,12).forEach(e=>{
+      h+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:13px;color:var(--text)">${new Date(e.date+'T12:00:00').toLocaleDateString('en-IE',{day:'numeric',month:'short'})}</div>
+        <div style="font-size:13px"><span style="color:#60a5fa">L: ${e.left||'—'}</span>&nbsp;&nbsp;<span style="color:#f472b6">R: ${e.right||'—'}</span></div>
+      </div>`;
+    });
+    h+=`</div>`;
+  } else {
+    h+=`<div class="reminder-box" style="text-align:center;padding:22px 16px"><div style="font-size:28px;margin-bottom:8px">👁️</div><div style="font-size:13px;color:var(--text2)">No assessments yet.<br/>Log your first entry above to track clarity over time.</div></div>`;
+  }
+  document.getElementById('content').innerHTML=h;
 }
 
-function switchTab(tab){
-  currentTab=tab;
-  document.getElementById('tabToday').className=`tab-btn ${tab==='today'?'active':'inactive'}`;
-  document.getElementById('tabProgress').className=`tab-btn ${tab==='progress'?'active':'inactive'}`;
-  render();
-}
-
-// PWA INSTALL
+// ─── PWA ────────────────────────────────────────────────
 window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault();
-  deferredPrompt=e;
-  const banner=document.getElementById('installBanner');
-  if(banner) banner.classList.remove('hidden');
+  e.preventDefault();deferredPrompt=e;
+  const b=document.getElementById('installBanner');if(b)b.classList.remove('hidden');
 });
-
 function installPWA(){
   if(!deferredPrompt) return;
   deferredPrompt.prompt();
-  deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; });
+  deferredPrompt.userChoice.then(()=>{deferredPrompt=null;});
 }
-
 window.addEventListener('appinstalled',()=>{
-  const banner=document.getElementById('installBanner');
-  if(banner) banner.classList.add('hidden');
+  const b=document.getElementById('installBanner');if(b)b.classList.add('hidden');
 });
 
-// INIT
+// ─── INIT ───────────────────────────────────────────────
 loadState();
-render();
-
-// Service Worker registration
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
+applyTheme(S.settings.theme||'dark');
+if(!S.onboarded){
+  document.getElementById('onboardOverlay').classList.remove('hidden');
+} else {
+  render();
 }
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>

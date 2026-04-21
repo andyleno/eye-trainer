@@ -1,4 +1,4 @@
-const CACHE = "eyetrainer-v1";
+const CACHE = "eyetrainer-v2";
 const ASSETS = ["/", "/index.html", "/manifest.json"];
 
 self.addEventListener("install", e => {
