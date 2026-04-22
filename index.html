@@ -163,6 +163,19 @@ textarea::placeholder{color:var(--text4);}
 .ob-field::placeholder{color:var(--text4);}
 .ob-row{display:flex;gap:10px;margin-bottom:12px;}
 .ob-label{font-size:15px;color:var(--text3);text-align:left;margin-bottom:5px;margin-top:2px;}
+.cond-card{background:var(--bg3);border-radius:12px;padding:15px 17px;margin-bottom:12px;}
+.cond-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:9px;}
+.cond-body{font-size:14px;color:var(--text2);line-height:1.68;}
+.autostep-hint{font-size:13px;color:var(--text3);text-align:center;padding:6px 0 2px;font-style:italic;}
+.welcome-toast{position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:500;width:calc(100% - 40px);max-width:440px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:16px 18px;box-shadow:0 8px 32px rgba(0,0,0,0.4);display:flex;align-items:center;gap:14px;animation:toastIn 0.35s ease;}
+.welcome-toast.hiding{animation:toastOut 0.3s ease forwards;}
+.welcome-toast-icon{font-size:32px;flex-shrink:0;}
+.welcome-toast-body{flex:1;}
+.welcome-toast-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.welcome-toast-sub{font-size:14px;color:var(--text2);}
+.welcome-toast-close{font-size:20px;color:var(--text3);background:none;border:none;flex-shrink:0;padding:4px;}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(-50%) translateY(-12px)}}
 </style>
 </head>
 <body>
@@ -199,6 +212,8 @@ textarea::placeholder{color:var(--text4);}
       </div>
       <div class="header-right">
         <div class="header-icons">
+          <button class="icon-btn" onclick="toggleMute()" id="headerMuteBtn" title="Audio on/off">🔊</button>
+          <button class="icon-btn" onclick="openInfo()" title="About these exercises">ℹ️</button>
           <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Theme">🌙</button>
           <button class="icon-btn" onclick="openSettings()" title="Settings">⚙️</button>
         </div>
@@ -246,6 +261,7 @@ textarea::placeholder{color:var(--text4);}
       <button class="step-btn" id="btnPrev" onclick="prevStep()">← Prev</button>
       <button class="step-btn" id="btnNext" onclick="nextStep()">Next →</button>
     </div>
+    <div class="autostep-hint hidden" id="autoStepHint">Steps advancing automatically — tap Prev / Next to take control</div>
     <div class="timer-row">
       <div class="timer-ring">
         <svg width="100" height="100" style="transform:rotate(-90deg)">
@@ -302,6 +318,14 @@ textarea::placeholder{color:var(--text4);}
     </div>
 
     <div class="settings-group">
+      <div class="sg-title">NAVIGATION</div>
+      <div class="settings-row">
+        <div><div class="settings-label">Auto-Step</div><div class="settings-sub">Steps advance automatically based on exercise duration</div></div>
+        <button class="toggle off" id="togAutoStep" onclick="toggleSetting('autoStep','togAutoStep')"><div class="toggle-knob"></div></button>
+      </div>
+    </div>
+
+    <div class="settings-group">
       <div class="sg-title">EXERCISE DURATIONS</div>
       <div id="durSettings"></div>
     </div>
@@ -329,7 +353,7 @@ textarea::placeholder{color:var(--text4);}
     <div class="settings-group">
       <div class="sg-title">DATA</div>
       <button class="btn-secondary" onclick="exportCSV()">📤 Export all data as CSV</button>
-      <button class="btn-secondary" style="margin-top:6px;color:#f87171;border-color:#f87171" onclick="confirmReset()">🗑 Reset all data</button>
+      <button class="btn-secondary" style="margin-top:8px;color:#f87171;border-color:#f87171;font-size:17px;padding:15px" onclick="confirmReset()">🗑 Reset all data</button>
     </div>
   </div>
 </div>
@@ -353,12 +377,47 @@ textarea::placeholder{color:var(--text4);}
   </div>
 </div>
 
+<!-- INFO OVERLAY -->
+<div class="modal-overlay hidden" id="infoOverlay" onclick="handleOvClick(event,'infoOverlay',closeInfo)">
+  <div class="sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeInfo()">✕</button>
+    <div class="sheet-title">About These Exercises</div>
+    <div style="font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:18px">Each exercise targets a specific aspect of visual comfort. Here's what each condition means and why it affects your reading.</div>
+
+    <div class="cond-card">
+      <div class="cond-title"><span style="font-size:22px">👁️</span> Hyperopia (Farsightedness)</div>
+      <div class="cond-body">Your eyes are slightly shorter than average, causing the lens to work harder to focus on close objects. This leads to eye fatigue, blurred near vision, and headaches when reading. The <strong style="color:var(--text)">Near-Far Focus Shifting</strong> and <strong style="color:var(--text)">Pencil Push-Ups</strong> exercises directly train the ciliary muscle responsible for this focusing effort.</div>
+    </div>
+
+    <div class="cond-card">
+      <div class="cond-title"><span style="font-size:22px">😣</span> Eye Strain (Asthenopia)</div>
+      <div class="cond-body">Sustained near work — reading, screens, fine detail — causes the ciliary muscle to cramp and the extraocular muscles to fatigue. Symptoms include aching eyes, difficulty maintaining focus, and sensitivity to light. The <strong style="color:var(--text)">20-20-20 Rule</strong> and <strong style="color:var(--text)">Palming</strong> exercises give these muscles a full rest cycle.</div>
+    </div>
+
+    <div class="cond-card">
+      <div class="cond-title"><span style="font-size:22px">🔀</span> Convergence Insufficiency</div>
+      <div class="cond-body">When reading, both eyes must turn inward together to keep a single image on the same point of each retina. Weakness here causes words to blur or double at close range, making sustained reading exhausting. <strong style="color:var(--text)">Pencil Push-Ups</strong> are the most evidence-backed exercise for strengthening convergence.</div>
+    </div>
+
+    <div class="cond-card">
+      <div class="cond-title"><span style="font-size:22px">🌀</span> Poor Oculomotor Control</div>
+      <div class="cond-body">Reading requires your eyes to make rapid, precise jumps (saccades) along lines of text and smooth tracking movements. Sluggish or inaccurate eye movement causes you to lose your place or re-read lines. <strong style="color:var(--text)">Figure-8 Tracking</strong> trains both smooth pursuit and saccadic accuracy.</div>
+    </div>
+
+    <div class="cond-card">
+      <div class="cond-title"><span style="font-size:22px">⚠️</span> A note on evidence</div>
+      <div class="cond-body">Eye exercises do not correct refractive error (i.e. they won't change your prescription). The evidence is strongest for convergence training. These exercises aim to improve <em>comfort and endurance</em> during near work — not to replace corrective lenses or professional care. Track your acuity self-assessments over 4–8 weeks and discuss trends with your optometrist.</div>
+    </div>
+  </div>
+</div>
+
 <script>
 // ─── CONSTANTS & STATE ──────────────────────────────────
 const STORAGE_KEY = 'eyetrainer_v2';
 const DEF = {
   profile:{name:'',leftEye:'',rightEye:'',goal:'reading'},
-  settings:{tones:true,voice:true,voiceLang:'en-IE',theme:'dark',reminderTime:'09:00',reminderEnabled:false},
+  settings:{tones:true,voice:true,voiceLang:'en-IE',theme:'dark',reminderTime:'09:00',reminderEnabled:false,autoStep:false},
   customDurations:{},
   log:{},streak:0,bestStreak:0,lastDate:null,
   journal:{},acuity:[],onboarded:false
@@ -367,7 +426,7 @@ let S = JSON.parse(JSON.stringify(DEF));
 let currentTab='today', activeEx=null, currentStep=0;
 let timerVal=0, timerMax=0, timerRunning=false, timerInterval=null;
 let fig8Int=null, deferredPrompt=null, audioCtx=null;
-let muted=false, journalRating=0;
+let muted=false, journalRating=0, autoStepInt=null;
 
 const EXERCISES=[
   {id:1,name:'Near-Far Focus Shifting',icon:'🔭',defaultDuration:120,tag:'Core',tagColor:'#4ade80',
@@ -531,8 +590,14 @@ function playCompletionAudio(ex, allDone){
 
 function toggleMute(){
   muted=!muted;
-  document.getElementById('timerMuteBtn').textContent=muted?'🔇':'🔊';
+  syncMuteButtons();
   if(muted) stopAudio();
+}
+function syncMuteButtons(){
+  const icon=muted?'🔇':'🔊';
+  document.getElementById('headerMuteBtn').textContent=icon;
+  const modal=document.getElementById('timerMuteBtn');
+  if(modal) modal.textContent=icon;
 }
 
 // ─── ONBOARDING ─────────────────────────────────────────
@@ -633,9 +698,10 @@ function openModal(ex){
   document.getElementById('modalOverlay').classList.remove('hidden');
   if(ex.visual==='figure8') setTimeout(startFig8,100);
   playIntroThenStep(ex);
+  if(S.settings.autoStep) setTimeout(startAutoStep,1200);
 }
 function closeModal(){
-  stopTimer();
+  stopTimer();stopAutoStep();
   if(fig8Int){clearInterval(fig8Int);fig8Int=null;}
   stopAudio();
   document.getElementById('modalOverlay').classList.add('hidden');
@@ -652,9 +718,26 @@ function updateStep(){
   document.getElementById('btnNext').style.color=currentStep===tot-1?'var(--border2)':'var(--text)';
   document.getElementById('mVisual').innerHTML=getVisual(ex,currentStep);
   if(ex.visual==='figure8') setTimeout(startFig8,50);
+  const hint=document.getElementById('autoStepHint');
+  if(hint) hint.className='autostep-hint'+(S.settings.autoStep&&currentStep<tot-1?'':' hidden');
 }
-function prevStep(){ if(currentStep>0){currentStep--;updateStep();playStepAudio(activeEx,currentStep);} }
-function nextStep(){ if(currentStep<activeEx.steps.length-1){currentStep++;updateStep();playStepAudio(activeEx,currentStep);} }
+function prevStep(){ if(currentStep>0){currentStep--;updateStep();playStepAudio(activeEx,currentStep);resetAutoStep();} }
+function nextStep(){ if(currentStep<activeEx.steps.length-1){currentStep++;updateStep();playStepAudio(activeEx,currentStep);resetAutoStep();} }
+
+// ─── AUTO-STEP ───────────────────────────────────────────
+function startAutoStep(){
+  clearTimeout(autoStepInt); autoStepInt=null;
+  if(!S.settings.autoStep||!activeEx) return;
+  if(currentStep>=activeEx.steps.length-1) return;
+  const delay=Math.max(5000,Math.floor(exDur(activeEx)/activeEx.steps.length)*1000);
+  autoStepInt=setTimeout(()=>{
+    if(activeEx&&currentStep<activeEx.steps.length-1){
+      currentStep++;updateStep();playStepAudio(activeEx,currentStep);startAutoStep();
+    }
+  },delay);
+}
+function resetAutoStep(){ clearTimeout(autoStepInt);autoStepInt=null;startAutoStep(); }
+function stopAutoStep(){ clearTimeout(autoStepInt);autoStepInt=null; }
 
 // ─── TIMER ──────────────────────────────────────────────
 function toggleTimer(){ timerRunning?stopTimer():startTimer(); }
@@ -726,12 +809,13 @@ function openSettings(){
   document.getElementById('sLeft').value=S.profile.leftEye||'';
   document.getElementById('sRight').value=S.profile.rightEye||'';
   document.getElementById('sGoal').value=S.profile.goal||'reading';
-  document.getElementById('sVoiceLang').value=S.settings.voiceLang||'en-IE';
+  const vl=document.getElementById('sVoiceLang');if(vl) vl.value=S.settings.voiceLang||'en-IE';
   document.getElementById('sReminderTime').value=S.settings.reminderTime||'09:00';
   setTog('togTones',S.settings.tones);
   setTog('togVoice',S.settings.voice);
   setTog('togReminder',S.settings.reminderEnabled);
   setTog('togTheme',S.settings.theme==='dark');
+  setTog('togAutoStep',S.settings.autoStep);
   let dh='';
   EXERCISES.forEach(ex=>{
     dh+=`<div class="settings-row"><div><div class="settings-label">${ex.icon} ${ex.name}</div></div>
@@ -787,6 +871,41 @@ function confirmReset(){
     document.getElementById('onboardOverlay').classList.remove('hidden');
   }
 }
+
+// ─── WELCOME TOAST ──────────────────────────────────────
+function showWelcomeToast(){
+  const name=S.profile.name||'';
+  const h=new Date().getHours();
+  const tod=h<12?'morning':h<17?'afternoon':'evening';
+  const done=(S.log[todayKey()]||[]).length;
+  const streak=S.streak||0;
+  const streakTxt=streak>0?`🔥 ${streak} day streak`:'Start your streak today';
+  const doneTxt=done===5?'All 5 done today ✓':done>0?`${done}/5 done today`:'No exercises yet today';
+  const icon=done===5?'🎉':streak>2?'🔥':'👁️';
+
+  const toast=document.createElement('div');
+  toast.className='welcome-toast';
+  toast.id='welcomeToast';
+  toast.innerHTML=`
+    <div class="welcome-toast-icon">${icon}</div>
+    <div class="welcome-toast-body">
+      <div class="welcome-toast-title">Good ${tod}${name?', '+name:''}!</div>
+      <div class="welcome-toast-sub">${streakTxt} · ${doneTxt}</div>
+    </div>
+    <button class="welcome-toast-close" onclick="dismissToast()">✕</button>`;
+  document.body.appendChild(toast);
+  setTimeout(dismissToast, 5000);
+}
+function dismissToast(){
+  const t=document.getElementById('welcomeToast');
+  if(!t) return;
+  t.classList.add('hiding');
+  setTimeout(()=>t.remove(),300);
+}
+
+// ─── INFO ───────────────────────────────────────────────
+function openInfo(){ document.getElementById('infoOverlay').classList.remove('hidden'); }
+function closeInfo(){ document.getElementById('infoOverlay').classList.add('hidden'); }
 
 // ─── JOURNAL ────────────────────────────────────────────
 function openJournal(){
@@ -1002,6 +1121,7 @@ if(!S.onboarded){
   document.getElementById('onboardOverlay').classList.remove('hidden');
 } else {
   render();
+  setTimeout(showWelcomeToast, 400);
 }
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
