@@ -67,10 +67,32 @@ Each exercise includes a plain-language explanation of why it may help with fars
 
 ```
 eye-trainer/
-├── index.html      # Full application (self-contained)
-├── manifest.json   # PWA manifest — enables install & home screen icon
-├── sw.js           # Service worker — enables offline support
-└── README.md       # This file
+├── index.html        # Full application (self-contained)
+├── manifest.json     # PWA manifest — enables install & home screen icon
+├── sw.js             # Service worker — offline support + audio caching
+├── README.md         # This file
+├── audio/            # ElevenLabs pre-generated MP3 voice cues (57 files)
+│   ├── welcome.mp3
+│   ├── onboard_complete.mp3
+│   ├── intro_near_far.mp3
+│   ├── intro_pencil.mp3
+│   ├── intro_figure8.mp3
+│   ├── intro_2020.mp3
+│   ├── intro_palming.mp3
+│   ├── nf_step1.mp3 … nf_step6.mp3
+│   ├── pp_step1.mp3 … pp_step7.mp3
+│   ├── f8_step1.mp3 … f8_step7.mp3
+│   ├── tw_step1.mp3 … tw_step5.mp3
+│   ├── pa_step1.mp3 … pa_step7.mp3
+│   ├── timer_30s.mp3, timer_20s.mp3, timer_10s.mp3
+│   ├── timer_5s.mp3 … timer_1s.mp3
+│   ├── complete_near_far.mp3, complete_pencil.mp3
+│   ├── complete_figure8.mp3, complete_2020.mp3, complete_palming.mp3
+│   ├── complete_generic.mp3, complete_all.mp3
+│   ├── journal_prompt.mp3, journal_saved.mp3
+│   └── encourage_1.mp3 … encourage_4.mp3
+└── icon-192.png      # App icon (add your own)
+    icon-512.png
 ```
 
 The entire app lives in a single `index.html` file with no external dependencies beyond a Google Fonts import. There is no build step, no framework CLI, and no package manager required.
