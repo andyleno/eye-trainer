@@ -1338,7 +1338,10 @@ function saveAcuity(){
 
 // ─── RENDER ─────────────────────────────────────────────
 const TABS=['today','progress','journal','anatomy','acuity'];
-function switchTab(tab){ currentTab=tab;render(); }
+function switchTab(tab){
+  if(currentTab==='anatomy' && tab!=='anatomy') stopAudio();
+  currentTab=tab;render();
+}
 function render(){
   renderHeader();
   TABS.forEach((t,i)=>{
@@ -1762,7 +1765,10 @@ function eyeSVG(mode){
 }
 
 function anatTap(id){
-  anatHighlight = anatHighlight===id ? null : id;
+  const deselecting = anatHighlight===id;
+  anatHighlight = deselecting ? null : id;
+  if(!deselecting) playMP3('anat_'+id);
+  else stopAudio();
   renderAnatomy();
 }
 
