@@ -83,7 +83,7 @@ button:focus{outline:none;}
 .modal-icon{font-size:32px;}
 .modal-title{font-size:20px;font-weight:700;font-family:'DM Serif Display',serif;}
 .why-box{border-radius:11px;padding:13px 16px;margin-bottom:15px;font-size:15px;color:var(--text2);line-height:1.65;border-left-width:3px;border-left-style:solid;}
-.visual-area{margin-bottom:15px;min-height:80px;display:flex;align-items:center;justify-content:center;}
+.visual-area{margin-bottom:15px;min-height:120px;display:flex;align-items:center;justify-content:center;overflow:visible;}
 .step-counter{display:flex;justify-content:space-between;margin-bottom:7px;}
 .step-label{font-size:13px;color:var(--text3);}
 .step-box{background:var(--bg3);border-radius:10px;padding:14px 16px;font-size:16px;color:var(--text);line-height:1.65;min-height:72px;margin-bottom:11px;}
@@ -167,20 +167,24 @@ textarea::placeholder{color:var(--text4);}
 .cond-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:9px;}
 .cond-body{font-size:14px;color:var(--text2);line-height:1.68;}
 .autostep-hint{font-size:13px;color:var(--text3);text-align:center;padding:6px 0 2px;font-style:italic;}
-.welcome-toast{position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:500;width:calc(100% - 40px);max-width:440px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:16px 18px;box-shadow:0 8px 32px rgba(0,0,0,0.4);display:flex;align-items:center;gap:14px;animation:toastIn 0.35s ease;}
-.welcome-toast.hiding{animation:toastOut 0.3s ease forwards;}
-.welcome-toast-icon{font-size:32px;flex-shrink:0;}
-.welcome-toast-body{flex:1;}
-.welcome-toast-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:3px;}
-.welcome-toast-sub{font-size:14px;color:var(--text2);}
-.welcome-toast-close{font-size:20px;color:var(--text3);background:none;border:none;flex-shrink:0;padding:4px;}
-@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-@keyframes toastOut{to{opacity:0;transform:translateX(-50%) translateY(-12px)}}
+
+/* ── ANATOMY TAB ── */
+.anat-toggle{display:flex;background:var(--bg3);border-radius:12px;padding:4px;gap:4px;margin-bottom:18px;}
+.anat-toggle-btn{flex:1;padding:9px 0;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;background:none;color:var(--text3);}
+.anat-toggle-btn.active{background:var(--bg2);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.anat-svg-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:14px;overflow:hidden;}
+.anat-svg-wrap svg{display:block;width:100%;height:auto;}
+.anat-info{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:15px 16px;margin-bottom:10px;transition:border-color .2s;}
+.anat-info.highlighted{border-color:var(--purple);}
+.anat-info-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:5px;display:flex;align-items:center;gap:8px;}
+.anat-info-body{font-size:13px;color:var(--text2);line-height:1.65;}
+.anat-info-ex{font-size:12px;margin-top:7px;color:var(--purple);font-weight:600;}
+.anat-mode-label{font-size:12px;color:var(--text3);text-align:center;margin-bottom:10px;font-style:italic;}
 </style>
 </head>
 <body>
 
-<div class="onboard-overlay hidden" id="onboardOverlay">
+<div class="onboard-overlay" id="onboardOverlay">
   <div class="onboard-card">
     <div class="onboard-icon">👁️</div>
     <div class="onboard-title">Welcome to<br/><em>Eye Trainer</em></div>
@@ -235,7 +239,8 @@ textarea::placeholder{color:var(--text4);}
       <button class="tab-btn active" id="tab0" onclick="switchTab('today')">Today</button>
       <button class="tab-btn" id="tab1" onclick="switchTab('progress')">Progress</button>
       <button class="tab-btn" id="tab2" onclick="switchTab('journal')">Journal</button>
-      <button class="tab-btn" id="tab3" onclick="switchTab('acuity')">Acuity</button>
+      <button class="tab-btn" id="tab3" onclick="switchTab('anatomy')">Anatomy</button>
+      <button class="tab-btn" id="tab4" onclick="switchTab('acuity')">Acuity</button>
     </div>
   </div>
   <div class="content" id="content"></div>
@@ -456,7 +461,20 @@ function todayKey(){ return new Date().toISOString().slice(0,10); }
 
 // ─── STORAGE ────────────────────────────────────────────
 function loadState(){
-  try{ const r=localStorage.getItem(STORAGE_KEY); if(r) S=Object.assign(JSON.parse(JSON.stringify(DEF)),JSON.parse(r)); }catch(e){}
+  try{
+    const r=localStorage.getItem(STORAGE_KEY);
+    if(r){
+      const saved=JSON.parse(r);
+      // Deep merge: start from full DEF clone so any new keys always have defaults.
+      // Object.assign(DEF,saved) was a shallow merge — it wiped nested settings entirely
+      // if the saved state pre-dated a new settings key (e.g. voice, tones, autoStep).
+      S=JSON.parse(JSON.stringify(DEF));
+      ['streak','bestStreak','lastDate','onboarded'].forEach(k=>{ if(saved[k]!==undefined) S[k]=saved[k]; });
+      ['log','journal','acuity','customDurations'].forEach(k=>{ if(saved[k]) S[k]=saved[k]; });
+      if(saved.profile)  Object.assign(S.profile,  saved.profile);
+      if(saved.settings) Object.assign(S.settings, saved.settings);
+    }
+  }catch(e){}
 }
 function saveState(){ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(S)); }catch(e){} }
 
@@ -625,46 +643,447 @@ function toggleTheme(){
 }
 
 // ─── VISUALS ────────────────────────────────────────────
+// Each function returns an SVG string sized 280×110, step-aware.
+// All use CSS vars so they respect dark/light theme automatically.
+
+// ── NEAR-FAR FOCUS SHIFTING ──────────────────────────────
+// Steps: 0=hold thumb, 1=focus near, 2=shift far, 3=hold far, 4=repeat, 5=blink
 function vNearFar(step){
-  const near=step<=1||step%2===0;
-  return`<div style="display:flex;align-items:center;justify-content:center;gap:22px;width:100%">
-    <div style="text-align:center;opacity:${near?1:0.28};transition:opacity .5s">
-      <div style="width:42px;height:42px;border-radius:50%;background:${near?'#4ade80':'var(--bg3)'};margin:0 auto 5px;display:flex;align-items:center;justify-content:center;font-size:19px;transition:background .5s">👍</div>
-      <div style="color:var(--text3);font-size:12px">NEAR 10cm</div></div>
-    <div style="display:flex;gap:4px">${'<div style="width:4px;height:4px;border-radius:50%;background:var(--border2)"></div>'.repeat(5)}</div>
-    <div style="text-align:center;opacity:${!near?1:0.28};transition:opacity .5s">
-      <div style="width:50px;height:50px;border-radius:50%;background:${!near?'#60a5fa':'var(--bg3)'};border:2px solid var(--border2);margin:0 auto 5px;display:flex;align-items:center;justify-content:center;font-size:19px;transition:background .5s">🌄</div>
-      <div style="color:var(--text3);font-size:12px">FAR 6m+</div></div></div>`;
+  // Steps 0,1,4,5 = near active; steps 2,3 = far active
+  const nearActive = step===0||step===1||step===4||step===5;
+  const farActive  = step===2||step===3;
+  const blinking   = step===5;
+
+  // Thumb (left) – near target
+  const thumbCol  = nearActive ? '#4ade80' : 'var(--border2)';
+  const thumbOp   = nearActive ? 1 : 0.3;
+  // Mountain (right) – far target
+  const mountCol  = farActive ? '#60a5fa' : 'var(--border2)';
+  const mountOp   = farActive ? 1 : 0.3;
+
+  // Gaze line from eye (centre) to active target
+  // Eye is at x=140, y=55. Thumb tip at x=52,y=55. Mountain peak at x=232,y=30.
+  const gazeLine = nearActive
+    ? `<line x1="118" y1="55" x2="68" y2="55" stroke="#4ade80" stroke-width="2" stroke-dasharray="4 3" opacity="0.8"/>`
+    : farActive
+    ? `<line x1="162" y1="48" x2="210" y2="32" stroke="#60a5fa" stroke-width="2" stroke-dasharray="4 3" opacity="0.8"/>`
+    : '';
+
+  // Blink eyelid overlay
+  const blinkLid = blinking
+    ? `<ellipse cx="140" cy="55" rx="18" ry="6" fill="var(--bg2)" opacity="0.7"/>`
+    : '';
+
+  // Focus rings on active target
+  const thumbRing = nearActive
+    ? `<circle cx="52" cy="55" r="22" fill="none" stroke="#4ade80" stroke-width="1" opacity="0.4"/>
+       <circle cx="52" cy="55" r="28" fill="none" stroke="#4ade80" stroke-width="0.5" opacity="0.2"/>`
+    : '';
+  const mountRing = farActive
+    ? `<circle cx="232" cy="38" r="16" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+       <circle cx="232" cy="38" r="22" fill="none" stroke="#60a5fa" stroke-width="0.5" opacity="0.2"/>`
+    : '';
+
+  return `<svg width="280" height="110" viewBox="0 0 280 110" style="overflow:visible">
+    <!-- THUMB / NEAR TARGET -->
+    <g opacity="${thumbOp}" style="transition:opacity .5s">
+      ${thumbRing}
+      <!-- hand outline -->
+      <rect x="36" y="62" width="32" height="22" rx="5" fill="var(--bg3)" stroke="${thumbCol}" stroke-width="1.5"/>
+      <!-- thumb up -->
+      <rect x="44" y="36" width="14" height="28" rx="7" fill="var(--bg3)" stroke="${thumbCol}" stroke-width="1.5"/>
+      <!-- thumb nail -->
+      <rect x="46" y="38" width="10" height="8" rx="3" fill="${thumbCol}" opacity="0.5"/>
+      <text x="52" y="97" text-anchor="middle" font-size="11" fill="var(--text3)">10cm</text>
+    </g>
+
+    <!-- EYE (centre) -->
+    <g transform="translate(122,40)">
+      <!-- eye white -->
+      <ellipse cx="18" cy="15" rx="18" ry="12" fill="var(--bg2)" stroke="var(--border2)" stroke-width="1.5"/>
+      <!-- iris -->
+      <circle cx="18" cy="15" r="${nearActive?7:farActive?5:6}" fill="${nearActive?'#4ade80':farActive?'#60a5fa':'var(--border2)'}" style="transition:all .4s"/>
+      <!-- pupil -->
+      <circle cx="18" cy="15" r="${nearActive?3:farActive?2:2.5}" fill="var(--bg)" style="transition:all .4s"/>
+      <!-- catchlight -->
+      <circle cx="21" cy="12" r="1.5" fill="white" opacity="0.8"/>
+      ${blinkLid}
+      <!-- eyelid top -->
+      <path d="M0,15 Q18,3 36,15" fill="none" stroke="var(--border2)" stroke-width="1.2"/>
+      <!-- eyelid bottom -->
+      <path d="M2,16 Q18,26 34,16" fill="none" stroke="var(--border2)" stroke-width="1"/>
+      <!-- eyelashes top -->
+      <line x1="8" y1="10" x2="6" y2="6" stroke="var(--border2)" stroke-width="1"/>
+      <line x1="18" y1="5" x2="18" y2="1" stroke="var(--border2)" stroke-width="1"/>
+      <line x1="28" y1="10" x2="30" y2="6" stroke="var(--border2)" stroke-width="1"/>
+    </g>
+
+    <!-- GAZE LINE -->
+    ${gazeLine}
+
+    <!-- MOUNTAIN / FAR TARGET -->
+    <g opacity="${mountOp}" style="transition:opacity .5s">
+      ${mountRing}
+      <!-- mountain body -->
+      <polygon points="212,72 232,30 252,72" fill="var(--bg3)" stroke="${mountCol}" stroke-width="1.5"/>
+      <!-- snow cap -->
+      <polygon points="224,50 232,30 240,50" fill="${mountCol}" opacity="0.5"/>
+      <!-- ground line -->
+      <line x1="205" y1="72" x2="259" y2="72" stroke="${mountCol}" stroke-width="1" opacity="0.5"/>
+      <text x="232" y="85" text-anchor="middle" font-size="11" fill="var(--text3)">6m+</text>
+    </g>
+
+    <!-- Step label -->
+    <text x="140" y="108" text-anchor="middle" font-size="11" fill="var(--text3)" font-style="italic">
+      ${['Hold thumb near','Focus on thumb','Shift gaze far','Hold far focus','Repeat near↔far','Blink gently'][step]||''}
+    </text>
+  </svg>`;
 }
+
+// ── PENCIL PUSH-UPS ──────────────────────────────────────
+// Steps: 0=hold arm length, 1=focus on tip, 2=bring closer, 3=stop when double, 4=hold, 5=move back, 6=repeat
 function vPencil(step){
-  const pct=step<=1?88:step<=3?38:step<=4?18:88;
-  return`<div style="width:100%">
-    <div style="font-size:13px;color:var(--text2);margin-bottom:5px;text-align:center">← YOUR NOSE</div>
-    <div style="position:relative;width:100%;height:28px;background:var(--bg3);border-radius:6px">
-      <div style="position:absolute;top:50%;transform:translateY(-50%);left:${pct}%;transition:left .6s ease;font-size:20px">✏️</div></div>
-    <div style="display:flex;justify-content:space-between;margin-top:4px">
-      <span style="font-size:12px;color:var(--blue)">← NEAR</span>
-      <span style="font-size:12px;color:var(--blue)">FAR →</span></div></div>`;
+  // pencil x position along the track (arm=220, mid=150, double=90, hold=90, back=220)
+  const positions=[220,220,150,90,90,220,220];
+  const px = positions[step] || 220;
+
+  // double-vision effect (step 3=peak, step 4=hold)
+  const dbl = step===3||step===4;
+  // convergence lines visible from step 1 onwards
+  const showLines = step>=1;
+  // line colour: green=converging well, orange=double vision
+  const lineCol = dbl ? '#fb923c' : '#60a5fa';
+
+  // Two eye positions
+  const eyeL=60, eyeR=90, eyeY=28;
+
+  return `<svg width="280" height="115" viewBox="0 0 280 115" style="overflow:visible">
+    <!-- TRACK -->
+    <rect x="30" y="58" width="220" height="8" rx="4" fill="var(--bg3)"/>
+    <text x="30" y="80" font-size="10" fill="var(--text3)">NOSE</text>
+    <text x="222" y="80" font-size="10" fill="var(--text3)">ARM</text>
+
+    <!-- PENCIL body -->
+    <g style="transition:transform .6s ease" transform="translate(${px-6},30)">
+      <!-- eraser -->
+      <rect x="0" y="0" width="12" height="8" rx="2" fill="#f472b6"/>
+      <!-- ferrule -->
+      <rect x="1" y="8" width="10" height="4" fill="#94a3b8"/>
+      <!-- wood body -->
+      <rect x="1" y="12" width="10" height="28" fill="#fbbf24"/>
+      <!-- painted stripe -->
+      <rect x="1" y="12" width="10" height="18" fill="#fb923c" opacity="0.6"/>
+      <!-- tip -->
+      <polygon points="1,40 11,40 6,54" fill="#e5c99a"/>
+      <!-- graphite tip -->
+      <polygon points="4,50 8,50 6,54" fill="#475569"/>
+      <!-- pencil tip highlight dot -->
+      <circle cx="6" cy="54" r="2.5" fill="${dbl?'#fb923c':'#60a5fa'}" opacity="0.9"/>
+    </g>
+
+    <!-- DOUBLE VISION ghost pencil -->
+    ${dbl ? `<g opacity="0.35" transform="translate(${px-6-8},34)">
+      <rect x="0" y="12" width="10" height="28" fill="#fb923c"/>
+      <polygon points="1,40 11,40 6,54" fill="#e5c99a"/>
+      <circle cx="6" cy="54" r="2" fill="#fb923c" opacity="0.7"/>
+    </g>
+    <g opacity="0.35" transform="translate(${px-6+8},34)">
+      <rect x="0" y="12" width="10" height="28" fill="#fb923c"/>
+      <polygon points="1,40 11,40 6,54" fill="#e5c99a"/>
+      <circle cx="6" cy="54" r="2" fill="#fb923c" opacity="0.7"/>
+    </g>` : ''}
+
+    <!-- CONVERGENCE LINES from eyes to pencil tip -->
+    ${showLines ? `
+    <line x1="${eyeL+130}" y1="${eyeY+40}" x2="${px}" y2="84"
+      stroke="${lineCol}" stroke-width="${dbl?1.5:2}" stroke-dasharray="${dbl?'3 2':'0'}" opacity="0.7"/>
+    <line x1="${eyeR+130}" y1="${eyeY+40}" x2="${px}" y2="84"
+      stroke="${lineCol}" stroke-width="${dbl?1.5:2}" stroke-dasharray="${dbl?'3 2':'0'}" opacity="0.7"/>
+    ` : ''}
+
+    <!-- TWO EYES (top centre) -->
+    <g transform="translate(130,20)">
+      <!-- left eye -->
+      <ellipse cx="${eyeL}" cy="${eyeY}" rx="14" ry="9" fill="var(--bg2)" stroke="var(--border2)" stroke-width="1.2"/>
+      <circle cx="${eyeL + (step>=2?(px<140?-3:0):0)}" cy="${eyeY}" r="5" fill="${lineCol}" style="transition:all .4s"/>
+      <circle cx="${eyeL + (step>=2?(px<140?-3:0):0)}" cy="${eyeY}" r="2" fill="var(--bg)"/>
+      <!-- right eye -->
+      <ellipse cx="${eyeR}" cy="${eyeY}" rx="14" ry="9" fill="var(--bg2)" stroke="var(--border2)" stroke-width="1.2"/>
+      <circle cx="${eyeR + (step>=2?(px<140?3:0):0)}" cy="${eyeY}" r="5" fill="${lineCol}" style="transition:all .4s"/>
+      <circle cx="${eyeR + (step>=2?(px<140?3:0):0)}" cy="${eyeY}" r="2" fill="var(--bg)"/>
+    </g>
+
+    <!-- Double vision warning label -->
+    ${dbl ? `<text x="140" y="105" text-anchor="middle" font-size="12" fill="#fb923c" font-weight="600">Double vision — stop here</text>` :
+    `<text x="140" y="105" text-anchor="middle" font-size="11" fill="var(--text3)" font-style="italic">
+      ${['Hold at arm\'s length','Focus — single, clear','Move slowly closer','Stop when tip doubles','Hold 2 seconds','Return to arm\'s length','Repeat 15 times'][step]||''}
+    </text>`}
+  </svg>`;
 }
-function vFig8(){
-  return`<svg id="fig8svg" width="200" height="86" viewBox="0 0 200 86">
-    <path d="M100,43 C100,21 163,21 163,43 C163,65 100,65 100,43 C100,21 37,21 37,43 C37,65 100,65 100,43" fill="none" stroke="var(--border2)" stroke-width="2"/>
-    <circle id="fig8dot" cx="100" cy="43" r="7" fill="#f472b6"/></svg>`;
+
+// ── FIGURE-8 TRACKING ────────────────────────────────────
+// Steps: 0=sit/relax, 1=imagine shape, 2=trace (head still), 3=clockwise, 4=anti-clockwise, 5=4 sets, 6=breathe
+function vFig8(step){
+  // Show the figure-8 path always. Highlight direction arrow based on step.
+  const showClock  = step===3||step===5;
+  const showAnti   = step===4||step===5;
+  const showEye    = step>=2; // show animated dot once tracing starts
+  const dimPath    = step<=1;
+
+  return `<svg id="fig8svg" width="280" height="110" viewBox="0 0 280 110" style="overflow:visible">
+    <!-- HEAD SILHOUETTE (faint, top left) -->
+    <g opacity="0.25" transform="translate(10,20)">
+      <ellipse cx="22" cy="22" rx="20" ry="24" fill="var(--border2)"/>
+      <ellipse cx="22" cy="36" rx="9" ry="6" fill="var(--bg2)"/>
+    </g>
+    <!-- HEAD STILL indicator -->
+    ${step===2||step===3||step===4 ? `
+    <text x="22" y="72" text-anchor="middle" font-size="10" fill="var(--text3)">HEAD</text>
+    <text x="22" y="83" text-anchor="middle" font-size="10" fill="var(--text3)">STILL</text>
+    <line x1="22" y1="52" x2="22" y2="58" stroke="var(--text3)" stroke-width="1.5" marker-end="none"/>
+    ` : ''}
+
+    <!-- FIGURE-8 PATH -->
+    <path id="fig8path"
+      d="M140,55 C140,28 195,28 195,55 C195,82 140,82 140,55 C140,28 85,28 85,55 C85,82 140,82 140,55"
+      fill="none" stroke="var(--border2)" stroke-width="${dimPath?1.5:2.5}" opacity="${dimPath?0.3:0.7}"
+      style="transition:all .4s"/>
+
+    <!-- CLOCKWISE ARROW -->
+    ${showClock ? `
+    <path d="M168,34 Q195,28 195,55" fill="none" stroke="#4ade80" stroke-width="2.5" opacity="0.9"/>
+    <polygon points="170,28 168,34 174,33" fill="#4ade80"/>
+    <text x="200" y="32" font-size="11" fill="#4ade80">CW</text>
+    ` : ''}
+
+    <!-- ANTI-CLOCKWISE ARROW -->
+    ${showAnti ? `
+    <path d="M112,34 Q85,28 85,55" fill="none" stroke="#f472b6" stroke-width="2.5" opacity="0.9"/>
+    <polygon points="110,28 112,34 106,33" fill="#f472b6"/>
+    <text x="60" y="32" font-size="11" fill="#f472b6">CCW</text>
+    ` : ''}
+
+    <!-- ANIMATED TRACKING DOT -->
+    ${showEye ? `<circle id="fig8dot" cx="140" cy="55" r="8" fill="#f472b6" opacity="0.95"/>
+    <circle id="fig8dotInner" cx="140" cy="55" r="3.5" fill="var(--bg)"/>` : ''}
+
+    <!-- BREATH indicator (step 6) -->
+    ${step===6 ? `
+    <g transform="translate(205,45)">
+      <rect x="0" y="0" width="62" height="22" rx="8" fill="var(--bg3)" opacity="0.9"/>
+      <text x="31" y="15" text-anchor="middle" font-size="12" fill="var(--text2)">breathe...</text>
+    </g>
+    ` : ''}
+
+    <!-- Step label -->
+    <text x="140" y="104" text-anchor="middle" font-size="11" fill="var(--text3)" font-style="italic">
+      ${['Relax shoulders, sit upright','Imagine figure-8 (3m away)','Eyes trace — head still','Trace clockwise, 8 seconds','Trace anti-clockwise','Complete 4 sets total','Keep breathing steadily'][step]||''}
+    </text>
+  </svg>`;
 }
+
+// ── 20-20-20 RULE ─────────────────────────────────────────
+// Steps: 0=after 20 min, 1=look 6m away, 2=hold 20 sec, 3=blink/relax, 4=resume
 function vTwenty(step){
-  return`<div style="text-align:center">
-    <div style="font-size:48px;font-weight:900;color:${step>=2?'#fb923c':'var(--border2)'};transition:color .5s">20</div>
-    <div style="font-size:14px;color:var(--text3);margin-top:4px">seconds · 20 feet · every 20 min</div></div>`;
+  // Scene: desk (left, near) and window/tree (right, far)
+  const gazeNear = step===0||step===4;
+  const gazeFar  = step===1||step===2||step===3;
+  const blinking = step===3;
+  const timerOn  = step===2;
+
+  // Gaze line colour
+  const gazeCol = gazeFar ? '#fb923c' : 'var(--border2)';
+  // Eye pupil position: near = left, far = right
+  const pupilX  = gazeFar ? 138 : 122;
+
+  return `<svg width="280" height="115" viewBox="0 0 280 115" style="overflow:visible">
+
+    <!-- DESK + SCREEN (left/near) -->
+    <g opacity="${gazeNear?1:0.4}" style="transition:opacity .5s">
+      <!-- desk surface -->
+      <rect x="12" y="72" width="76" height="6" rx="2" fill="var(--border2)" opacity="0.6"/>
+      <!-- monitor stand -->
+      <rect x="45" y="56" width="6" height="16" fill="var(--border2)" opacity="0.5"/>
+      <!-- monitor -->
+      <rect x="22" y="28" width="52" height="32" rx="4" fill="var(--bg3)" stroke="var(--border2)" stroke-width="1.5"/>
+      <!-- screen glow -->
+      <rect x="25" y="31" width="46" height="26" rx="2" fill="${gazeNear?'#1e3a5f':'var(--bg3)'}"/>
+      <!-- screen lines (content) -->
+      <rect x="28" y="34" width="30" height="2" rx="1" fill="${gazeNear?'#60a5fa':'var(--border2)'}" opacity="0.6"/>
+      <rect x="28" y="38" width="38" height="2" rx="1" fill="${gazeNear?'#60a5fa':'var(--border2)'}" opacity="0.4"/>
+      <rect x="28" y="42" width="24" height="2" rx="1" fill="${gazeNear?'#60a5fa':'var(--border2)'}" opacity="0.4"/>
+      <text x="48" y="90" text-anchor="middle" font-size="10" fill="var(--text3)">screen</text>
+    </g>
+
+    <!-- EYE (centre) -->
+    <g transform="translate(110,40)">
+      <ellipse cx="20" cy="14" rx="20" ry="13" fill="var(--bg2)" stroke="var(--border2)" stroke-width="1.5"/>
+      <!-- iris tracks gaze direction -->
+      <circle cx="${pupilX-110}" cy="14" r="${blinking?1:6}" fill="${gazeFar?'#fb923c':'#60a5fa'}" style="transition:all .4s"/>
+      <circle cx="${pupilX-110}" cy="14" r="${blinking?0.5:2.5}" fill="var(--bg)" style="transition:all .4s"/>
+      <circle cx="${pupilX-107}" cy="11" r="1.5" fill="white" opacity="0.7"/>
+      <!-- eyelid top -->
+      <path d="M2,14 Q20,2 38,14" fill="none" stroke="var(--border2)" stroke-width="1.2"/>
+      <!-- eyelid bottom -->
+      <path d="M2,15 Q20,26 38,15" fill="none" stroke="var(--border2)" stroke-width="1"/>
+      <!-- blink = closed lid -->
+      ${blinking ? `<ellipse cx="20" cy="14" rx="18" ry="5" fill="var(--bg2)" stroke="var(--border2)" stroke-width="1"/>` : ''}
+    </g>
+
+    <!-- GAZE LINE to far target -->
+    ${gazeFar ? `<line x1="152" y1="54" x2="220" y2="38" stroke="${gazeCol}" stroke-width="2" stroke-dasharray="5 3" opacity="0.8"/>` : ''}
+    <!-- GAZE LINE to near target -->
+    ${gazeNear ? `<line x1="110" y1="54" x2="72" y2="44" stroke="var(--border2)" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>` : ''}
+
+    <!-- WINDOW + TREE (right/far) -->
+    <g opacity="${gazeFar?1:0.35}" style="transition:opacity .5s">
+      <!-- window frame -->
+      <rect x="192" y="20" width="74" height="62" rx="4" fill="${gazeFar?'#0c2040':'var(--bg3)'}" stroke="var(--border2)" stroke-width="1.5"/>
+      <!-- sky -->
+      <rect x="195" y="23" width="68" height="36" rx="2" fill="${gazeFar?'#1e3a5f':'var(--bg3)'}"/>
+      <!-- sun -->
+      <circle cx="248" cy="34" r="8" fill="#fbbf24" opacity="${gazeFar?0.9:0.3}"/>
+      <!-- window cross -->
+      <line x1="229" y1="20" x2="229" y2="82" stroke="var(--border2)" stroke-width="1" opacity="0.6"/>
+      <line x1="192" y1="51" x2="266" y2="51" stroke="var(--border2)" stroke-width="1" opacity="0.6"/>
+      <!-- tree trunk -->
+      <rect x="222" y="58" width="8" height="16" rx="2" fill="#92400e" opacity="0.7"/>
+      <!-- tree foliage -->
+      <ellipse cx="226" cy="53" rx="14" ry="10" fill="#166534" opacity="${gazeFar?0.9:0.4}"/>
+      <text x="229" y="96" text-anchor="middle" font-size="10" fill="var(--text3)">6m+ away</text>
+    </g>
+
+    <!-- TIMER badge (step 2) -->
+    ${timerOn ? `
+    <g transform="translate(108,78)">
+      <rect x="0" y="0" width="64" height="22" rx="8" fill="#fb923c" opacity="0.15"/>
+      <rect x="0" y="0" width="64" height="22" rx="8" fill="none" stroke="#fb923c" stroke-width="1"/>
+      <text x="32" y="15" text-anchor="middle" font-size="12" fill="#fb923c" font-weight="600">20 seconds</text>
+    </g>
+    ` : ''}
+
+    <!-- Step label -->
+    <text x="140" y="110" text-anchor="middle" font-size="11" fill="var(--text3)" font-style="italic">
+      ${['Pause after 20 min of screen time','Look 6m (20 feet) away','Hold gaze — full 20 seconds','Blink — let eyes relax','Resume and repeat in 20 min'][step]||''}
+    </text>
+  </svg>`;
 }
+
+// ── PALMING ──────────────────────────────────────────────
+// Steps: 0=sit at table, 1=rub palms, 2=close eyes, 3=cup hands over eyes, 4=breathe/darkness, 5=hold, 6=open slowly
 function vPalm(step){
-  return`<div style="font-size:42px;opacity:${step>=2?1:0.28};transition:opacity .5s;transform:scaleX(-1)">🤲</div>`;
+  const rubbing   = step===1;
+  const cupped    = step>=3;
+  const darkness  = step===4||step===5;
+  const opening   = step===6;
+  // Warmth waves visible after rubbing
+  const warmth    = step>=2;
+  // Eyes: open=0,1,6; closed=2,3,4,5
+  const eyesClosed = step>=2 && step<=5;
+
+  return `<svg width="280" height="115" viewBox="0 0 280 115" style="overflow:visible">
+
+    <!-- FACE outline -->
+    <ellipse cx="140" cy="46" rx="38" ry="44" fill="var(--bg3)" stroke="var(--border2)" stroke-width="1.5" opacity="0.5"/>
+
+    <!-- EYES -->
+    ${!cupped ? `
+    <g>
+      <!-- left eye -->
+      <ellipse cx="122" cy="40" rx="11" ry="${eyesClosed?2:7}" fill="${eyesClosed?'none':'var(--bg2)'}" stroke="var(--border2)" stroke-width="1.2" style="transition:ry .4s"/>
+      ${!eyesClosed ? `<circle cx="122" cy="40" r="4" fill="var(--border2)"/><circle cx="124" cy="38" r="1.2" fill="white" opacity="0.7"/>` : ''}
+      <!-- right eye -->
+      <ellipse cx="158" cy="40" rx="11" ry="${eyesClosed?2:7}" fill="${eyesClosed?'none':'var(--bg2)'}" stroke="var(--border2)" stroke-width="1.2" style="transition:ry .4s"/>
+      ${!eyesClosed ? `<circle cx="158" cy="40" r="4" fill="var(--border2)"/><circle cx="160" cy="38" r="1.2" fill="white" opacity="0.7"/>` : ''}
+      <!-- eyelids closed line -->
+      ${eyesClosed ? `
+      <path d="M111,40 Q122,35 133,40" fill="none" stroke="var(--border2)" stroke-width="1.5"/>
+      <path d="M147,40 Q158,35 169,40" fill="none" stroke="var(--border2)" stroke-width="1.5"/>
+      ` : ''}
+    </g>
+    ` : ''}
+
+    <!-- NOSE + MOUTH -->
+    ${!cupped ? `
+    <path d="M136,52 L134,62 L146,62" fill="none" stroke="var(--border2)" stroke-width="1" opacity="0.5"/>
+    <path d="M133,70 Q140,76 147,70" fill="none" stroke="var(--border2)" stroke-width="1.2" opacity="${opening?0.9:0.4}"/>
+    ` : ''}
+
+    <!-- HANDS — palm rubbing (step 1) -->
+    ${rubbing ? `
+    <!-- left palm -->
+    <g transform="translate(62,64)">
+      <rect x="0" y="0" width="46" height="34" rx="10" fill="var(--bg3)" stroke="var(--border2)" stroke-width="1.5"/>
+      <rect x="6" y="-12" width="8" height="20" rx="4" fill="var(--bg3)" stroke="var(--border2)" stroke-width="1"/>
+      <rect x="17" y="-14" width="8" height="22" rx="4" fill="var(--bg3)" stroke="var(--border2)" stroke-width="1"/>
+      <rect x="28" y="-12" width="8" height="20" rx="4" fill="var(--bg3)" stroke="var(--border2)" stroke-width="1"/>
+      <rect x="38" y="-8" width="7" height="16" rx="3.5" fill="var(--bg3)" stroke="var(--border2)" stroke-width="1"/>
+    </g>
+    <!-- right palm (flipped) -->
+    <g transform="translate(172,64) scale(-1,1) translate(-46,0)">
+      <rect x="0" y="0" width="46" height="34" rx="10" fill="var(--bg3)" stroke="var(--border2)" stroke-width="1.5"/>
+      <rect x="6" y="-12" width="8" height="20" rx="4" fill="var(--bg3)" stroke="var(--border2)" stroke-width="1"/>
+      <rect x="17" y="-14" width="8" height="22" rx="4" fill="var(--bg3)" stroke="var(--border2)" stroke-width="1"/>
+      <rect x="28" y="-12" width="8" height="20" rx="4" fill="var(--bg3)" stroke="var(--border2)" stroke-width="1"/>
+      <rect x="38" y="-8" width="7" height="16" rx="3.5" fill="var(--bg3)" stroke="var(--border2)" stroke-width="1"/>
+    </g>
+    <!-- friction arrows -->
+    <line x1="108" y1="66" x2="116" y2="66" stroke="#fb923c" stroke-width="2" marker-end="none" opacity="0.8"/>
+    <line x1="172" y1="66" x2="164" y2="66" stroke="#fb923c" stroke-width="2" opacity="0.8"/>
+    ` : ''}
+
+    <!-- WARMTH WAVES -->
+    ${warmth && !cupped ? `
+    <g opacity="0.5">
+      <path d="M100,62 Q105,54 110,62 Q115,70 120,62" fill="none" stroke="#fb923c" stroke-width="1.5"/>
+      <path d="M160,62 Q165,54 170,62 Q175,70 180,62" fill="none" stroke="#fb923c" stroke-width="1.5"/>
+    </g>
+    ` : ''}
+
+    <!-- CUPPED HANDS over face -->
+    ${cupped ? `
+    <!-- dark overlay inside cup — "darkness" -->
+    <ellipse cx="140" cy="42" rx="36" ry="34"
+      fill="${darkness?'#0a0a14':'var(--bg3)'}" opacity="${darkness?0.92:0.7}"
+      style="transition:fill .6s,opacity .6s"/>
+    <!-- warmth glow inside -->
+    ${warmth ? `<ellipse cx="140" cy="48" rx="28" ry="20" fill="#fb923c" opacity="${darkness?0.12:0.08}" style="transition:opacity .6s"/>` : ''}
+    <!-- left cupped palm -->
+    <g transform="translate(64,30)">
+      <path d="M0,50 Q-8,20 10,4 Q28,-6 46,4 L46,50 Z" fill="var(--bg3)" stroke="var(--border2)" stroke-width="1.5"/>
+    </g>
+    <!-- right cupped palm -->
+    <g transform="translate(170,30)">
+      <path d="M0,50 Q8,20 -10,4 Q-28,-6 -46,4 L-46,50 Z" fill="var(--bg3)" stroke="var(--border2)" stroke-width="1.5"/>
+    </g>
+    <!-- finger outlines on left -->
+    <path d="M68,34 Q64,20 70,10" fill="none" stroke="var(--border2)" stroke-width="1" opacity="0.6"/>
+    <path d="M78,30 Q76,14 84,6" fill="none" stroke="var(--border2)" stroke-width="1" opacity="0.6"/>
+    <!-- finger outlines on right -->
+    <path d="M212,34 Q216,20 210,10" fill="none" stroke="var(--border2)" stroke-width="1" opacity="0.6"/>
+    <path d="M202,30 Q204,14 196,6" fill="none" stroke="var(--border2)" stroke-width="1" opacity="0.6"/>
+    <!-- warmth heat waves inside cup (darkness steps) -->
+    ${darkness ? `
+    <g opacity="0.35">
+      <path d="M126,50 Q130,42 134,50 Q138,58 142,50" fill="none" stroke="#fb923c" stroke-width="1.2"/>
+      <path d="M140,46 Q144,38 148,46 Q152,54 156,46" fill="none" stroke="#fb923c" stroke-width="1.2"/>
+    </g>
+    ` : ''}
+    ` : ''}
+
+    <!-- Step label -->
+    <text x="140" y="109" text-anchor="middle" font-size="11" fill="var(--text3)" font-style="italic">
+      ${['Sit, elbows on table','Rub palms — 10 seconds','Close your eyes gently','Cup warm palms over eyes','Breathe — enjoy the dark','Hold 2 minutes','Open eyes slowly, blink'][step]||''}
+    </text>
+  </svg>`;
 }
+
 function getVisual(ex,step){
   if(ex.visual==='near-far') return vNearFar(step);
-  if(ex.visual==='pencil') return vPencil(step);
-  if(ex.visual==='figure8') return vFig8();
-  if(ex.visual==='2020') return vTwenty(step);
-  if(ex.visual==='palming') return vPalm(step);
+  if(ex.visual==='pencil')   return vPencil(step);
+  if(ex.visual==='figure8')  return vFig8(step);
+  if(ex.visual==='2020')     return vTwenty(step);
+  if(ex.visual==='palming')  return vPalm(step);
   return'';
 }
 function startFig8(){
@@ -673,7 +1092,13 @@ function startFig8(){
   fig8Int=setInterval(()=>{
     t+=0.025;
     const d=document.getElementById('fig8dot');
-    if(d){d.setAttribute('cx',100+63*Math.sin(t));d.setAttribute('cy',43+22*Math.sin(2*t));}
+    const di=document.getElementById('fig8dotInner');
+    if(d){
+      const cx=140+55*Math.sin(t);
+      const cy=55+27*Math.sin(2*t);
+      d.setAttribute('cx',cx); d.setAttribute('cy',cy);
+      if(di){di.setAttribute('cx',cx);di.setAttribute('cy',cy);}
+    }
   },30);
 }
 
@@ -872,37 +1297,6 @@ function confirmReset(){
   }
 }
 
-// ─── WELCOME TOAST ──────────────────────────────────────
-function showWelcomeToast(){
-  const name=S.profile.name||'';
-  const h=new Date().getHours();
-  const tod=h<12?'morning':h<17?'afternoon':'evening';
-  const done=(S.log[todayKey()]||[]).length;
-  const streak=S.streak||0;
-  const streakTxt=streak>0?`🔥 ${streak} day streak`:'Start your streak today';
-  const doneTxt=done===5?'All 5 done today ✓':done>0?`${done}/5 done today`:'No exercises yet today';
-  const icon=done===5?'🎉':streak>2?'🔥':'👁️';
-
-  const toast=document.createElement('div');
-  toast.className='welcome-toast';
-  toast.id='welcomeToast';
-  toast.innerHTML=`
-    <div class="welcome-toast-icon">${icon}</div>
-    <div class="welcome-toast-body">
-      <div class="welcome-toast-title">Good ${tod}${name?', '+name:''}!</div>
-      <div class="welcome-toast-sub">${streakTxt} · ${doneTxt}</div>
-    </div>
-    <button class="welcome-toast-close" onclick="dismissToast()">✕</button>`;
-  document.body.appendChild(toast);
-  setTimeout(dismissToast, 5000);
-}
-function dismissToast(){
-  const t=document.getElementById('welcomeToast');
-  if(!t) return;
-  t.classList.add('hiding');
-  setTimeout(()=>t.remove(),300);
-}
-
 // ─── INFO ───────────────────────────────────────────────
 function openInfo(){ document.getElementById('infoOverlay').classList.remove('hidden'); }
 function closeInfo(){ document.getElementById('infoOverlay').classList.add('hidden'); }
@@ -943,7 +1337,7 @@ function saveAcuity(){
 }
 
 // ─── RENDER ─────────────────────────────────────────────
-const TABS=['today','progress','journal','acuity'];
+const TABS=['today','progress','journal','anatomy','acuity'];
 function switchTab(tab){ currentTab=tab;render(); }
 function render(){
   renderHeader();
@@ -953,6 +1347,7 @@ function render(){
   if(currentTab==='today') renderToday();
   else if(currentTab==='progress') renderProgress();
   else if(currentTab==='journal') renderJournal();
+  else if(currentTab==='anatomy') renderAnatomy();
   else if(currentTab==='acuity') renderAcuity();
 }
 function renderHeader(){
@@ -1100,7 +1495,332 @@ function renderAcuity(){
   document.getElementById('content').innerHTML=h;
 }
 
-// ─── PWA ────────────────────────────────────────────────
+// ─── ANATOMY TAB ────────────────────────────────────────
+let anatMode = 'hyperopia'; // 'normal' | 'hyperopia'
+let anatHighlight = null;   // currently tapped structure id
+
+const ANAT_STRUCTURES = [
+  {
+    id:'cornea',
+    label:'Cornea',
+    colour:'#60a5fa',
+    dot:[107,122],
+    title:'Cornea — the front window',
+    body:'The curved transparent dome at the front of the eye. Provides about 70% of the eye\'s total refracting power. In hyperopia it is usually normal — the issue lies behind it.',
+    exercise:null
+  },
+  {
+    id:'lens',
+    label:'Lens',
+    colour:'#4ade80',
+    dot:[138,122],
+    title:'Crystalline lens — the fine-tuner',
+    body:'A flexible, transparent disc sitting behind the iris. It changes shape (accommodation) to fine-tune focus. In hyperopia, the lens must work constantly to compensate — leading to ciliary muscle fatigue and reading strain.',
+    exercise:'Trained by: Near-Far Focus Shifting, Pencil Push-Ups'
+  },
+  {
+    id:'ciliary',
+    label:'Ciliary muscle',
+    colour:'#f472b6',
+    dot:[130,107],
+    title:'Ciliary muscle — the focuser',
+    body:'A ring of smooth muscle that controls lens curvature. Contracting it (near focus) makes the lens rounder; relaxing it (far focus) flattens it. In hyperopia this muscle works overtime for near tasks, causing cramping, aching, and headaches.',
+    exercise:'Trained by: Near-Far Focus Shifting, Palming, 20-20-20 Rule'
+  },
+  {
+    id:'axial',
+    label:'Axial length',
+    colour:'#fb923c',
+    dot:[162,122],
+    title:'Axial length — the root cause',
+    body:'The front-to-back distance of the eyeball. A normal eye is ~24mm. A hyperopic eye is shorter (often 22–23mm), so light rays converge behind the retina rather than on it. No exercise changes axial length — this is why glasses remain essential.',
+    exercise:null
+  },
+  {
+    id:'retina',
+    label:'Retina',
+    colour:'#a78bfa',
+    dot:[185,122],
+    title:'Retina — the sensor',
+    body:'The light-sensitive tissue lining the back of the eye. For sharp vision, the focused image must fall precisely on the fovea (central retina). In an uncorrected hyperopic eye the image converges behind the retina, producing blur at near distances.',
+    exercise:null
+  },
+  {
+    id:'fovea',
+    label:'Fovea',
+    colour:'#fbbf24',
+    dot:[190,122],
+    title:'Fovea — the sharpest point',
+    body:'A 1.5mm pit at the centre of the retina packed with cone photoreceptors. It handles all high-resolution, colour vision — reading, faces, fine detail. In hyperopia, the blurry image falling here causes the eye strain you notice most when reading.',
+    exercise:null
+  }
+];
+
+function eyeSVG(mode){
+  // mode: 'normal' | 'hyperopia'
+  // hyperopic eye is slightly shorter (squashed ~15% on x axis)
+  const scaleX = mode==='hyperopia' ? 0.87 : 1.0;
+  const hi = anatHighlight;
+
+  // Eye outline — oval, slightly squashed for hyperopia
+  // Centre at 150,122. Rx=72, Ry=62
+  const rx = Math.round(72*scaleX);
+  const ry = 62;
+  const cx = 150;
+  const cy = 122;
+
+  // Focus point x (where light converges)
+  // Normal: on retina at x≈215. Hyperopia: behind retina at x≈230
+  const focusX  = mode==='hyperopia' ? cx+rx+18 : cx+rx-2;
+  const focusY  = cy;
+  const retX    = cx+rx-6; // retina inner surface
+
+  // Light ray entry x (from left)
+  const rayStartX = cx-rx-30;
+
+  // Highlight helper
+  const hl = (id,base) => hi===id ? base : 'var(--border2)';
+  const hlOp = (id,base) => hi===id ? 1 : base;
+
+  return `<svg viewBox="0 0 300 244" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+
+  <!-- ── BACKGROUND labels ─────────────────────── -->
+
+  <!-- ── SCLERA (white of eye) ─────────────────── -->
+  <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"
+    fill="var(--bg3)" stroke="var(--border2)" stroke-width="2"/>
+
+  <!-- ── CHOROID (dark layer inside sclera) ──────── -->
+  <ellipse cx="${cx}" cy="${cy}" rx="${rx-5}" ry="${ry-5}"
+    fill="var(--bg)" stroke="none" opacity="0.5"/>
+
+  <!-- ── RETINA ──────────────────────────────────── -->
+  <!-- Right arc of eye = retina -->
+  <path d="M${cx+rx-6},${cy-ry+12} Q${cx+rx+2},${cy} ${cx+rx-6},${cy+ry-12}"
+    fill="none" stroke="${hi==='retina'?'#a78bfa':'#6b21a8'}" stroke-width="${hi==='retina'?4:3}" opacity="${hlOp('retina',0.8)}"/>
+
+  <!-- ── FOVEA dot ───────────────────────────────── -->
+  <circle cx="${retX-1}" cy="${cy}" r="${hi==='fovea'?5:3.5}"
+    fill="${hi==='fovea'?'#fbbf24':'#ca8a04'}" opacity="${hlOp('fovea',0.9)}"
+    style="transition:all .3s"/>
+
+  <!-- ── VITREOUS humor (interior fill) ─────────── -->
+  <ellipse cx="${cx+8}" cy="${cy}" rx="${rx-22}" ry="${ry-16}"
+    fill="${mode==='hyperopia'?'#0c1f3a':'#061628'}" opacity="0.6"/>
+
+  <!-- ── CORNEA arc ─────────────────────────────── -->
+  <path d="M${cx-rx},${cy-24} Q${cx-rx-18},${cy} ${cx-rx},${cy+24}"
+    fill="${hi==='cornea'?'#1e3a5f':'var(--bg3)'}" stroke="${hi==='cornea'?'#60a5fa':'#38bdf8'}"
+    stroke-width="${hi==='cornea'?3:2}" opacity="${hlOp('cornea',0.9)}"
+    style="transition:all .3s"/>
+
+  <!-- ── IRIS + PUPIL ───────────────────────────── -->
+  <ellipse cx="${cx-rx+18}" cy="${cy}" rx="11" ry="18"
+    fill="#1e3a5f" stroke="#38bdf8" stroke-width="1.5"/>
+  <ellipse cx="${cx-rx+18}" cy="${cy}" rx="6" ry="10"
+    fill="var(--bg)"/>
+
+  <!-- ── LENS ───────────────────────────────────── -->
+  <ellipse cx="${cx-rx+32}" cy="${cy}" rx="8" ry="16"
+    fill="${hi==='lens'?'#14532d':'#0a1628'}"
+    stroke="${hi==='lens'?'#4ade80':'#22c55e'}"
+    stroke-width="${hi==='lens'?2.5:1.5}" opacity="${hlOp('lens',0.9)}"
+    style="transition:all .3s"/>
+
+  <!-- ── CILIARY MUSCLE arcs (top + bottom) ─────── -->
+  <path d="M${cx-rx+28},${cy-16} Q${cx-rx+50},${cy-38} ${cx-rx+80},${cy-30}"
+    fill="none" stroke="${hi==='ciliary'?'#f472b6':'#db2777'}"
+    stroke-width="${hi==='ciliary'?3:2}" opacity="${hlOp('ciliary',0.7)}"
+    style="transition:all .3s"/>
+  <path d="M${cx-rx+28},${cy+16} Q${cx-rx+50},${cy+38} ${cx-rx+80},${cy+30}"
+    fill="none" stroke="${hi==='ciliary'?'#f472b6':'#db2777'}"
+    stroke-width="${hi==='ciliary'?3:2}" opacity="${hlOp('ciliary',0.7)}"
+    style="transition:all .3s"/>
+  <!-- ciliary label arc -->
+  <path d="M${cx-rx+30},${cy-20} Q${cx-rx+48},${cy-42} ${cx-rx+78},${cy-33}"
+    fill="none" stroke="${hi==='ciliary'?'#f472b6':'#db2777'}"
+    stroke-width="${hi==='ciliary'?1:0.5}" stroke-dasharray="2 2" opacity="0.5"/>
+
+  <!-- ── OPTIC NERVE ─────────────────────────────── -->
+  <rect x="${cx+rx-8}" y="${cy-7}" width="18" height="14" rx="3"
+    fill="var(--bg3)" stroke="var(--border2)" stroke-width="1.5"/>
+  <text x="${cx+rx+1}" y="${cy+5}" text-anchor="middle" font-size="8" fill="var(--text3)">ON</text>
+
+  <!-- ── AXIAL LENGTH indicator ─────────────────── -->
+  ${hi==='axial' ? `
+  <line x1="${cx-rx}" y1="${cy+ry+10}" x2="${cx+rx-6}" y2="${cy+ry+10}"
+    stroke="#fb923c" stroke-width="2"/>
+  <line x1="${cx-rx}" y1="${cy+ry+5}" x2="${cx-rx}" y2="${cy+ry+15}" stroke="#fb923c" stroke-width="1.5"/>
+  <line x1="${cx+rx-6}" y1="${cy+ry+5}" x2="${cx+rx-6}" y2="${cy+ry+15}" stroke="#fb923c" stroke-width="1.5"/>
+  <text x="${cx}" y="${cy+ry+24}" text-anchor="middle" font-size="10" fill="#fb923c" font-weight="600">
+    ${mode==='hyperopia'?'~22mm (short)':'~24mm (normal)'}
+  </text>` : ''}
+
+  <!-- ── LIGHT RAYS ──────────────────────────────── -->
+  <!-- Upper ray -->
+  <line x1="${rayStartX}" y1="${cy-40}" x2="${cx-rx+18}" y2="${cy-14}"
+    stroke="#fbbf24" stroke-width="1.2" stroke-dasharray="3 2" opacity="0.5"/>
+  <!-- Refracted through lens - upper ray -->
+  <line x1="${cx-rx+18}" y1="${cy-14}" x2="${focusX}" y2="${focusY}"
+    stroke="#fbbf24" stroke-width="1.2" opacity="0.7"/>
+  <!-- Lower ray -->
+  <line x1="${rayStartX}" y1="${cy+40}" x2="${cx-rx+18}" y2="${cy+14}"
+    stroke="#fbbf24" stroke-width="1.2" stroke-dasharray="3 2" opacity="0.5"/>
+  <!-- Refracted lower ray -->
+  <line x1="${cx-rx+18}" y1="${cy+14}" x2="${focusX}" y2="${focusY}"
+    stroke="#fbbf24" stroke-width="1.2" opacity="0.7"/>
+
+  <!-- ── FOCUS POINT ─────────────────────────────── -->
+  <!-- Normal: on retina = green dot -->
+  ${mode==='normal' ? `
+  <circle cx="${focusX}" cy="${focusY}" r="5" fill="#4ade80" opacity="0.9"/>
+  <text x="${focusX+10}" y="${focusY+4}" font-size="10" fill="#4ade80" font-weight="600">sharp</text>
+  ` : `
+  <!-- Hyperopia: behind retina = orange dot + dashed extension lines -->
+  <line x1="${retX}" y1="${cy}" x2="${focusX}" y2="${cy}"
+    stroke="#fb923c" stroke-width="1" stroke-dasharray="3 2" opacity="0.6"/>
+  <circle cx="${focusX}" cy="${focusY}" r="5" fill="#fb923c" opacity="0.9"/>
+  <text x="${focusX+8}" y="${focusY-6}" font-size="10" fill="#fb923c" font-weight="600">blur</text>
+  <text x="${focusX+8}" y="${focusY+6}" font-size="10" fill="#fb923c">(behind retina)</text>
+  `}
+
+  <!-- ── LIGHT SOURCE label ──────────────────────── -->
+  <text x="${rayStartX-2}" y="${cy-44}" font-size="10" fill="var(--text3)">light</text>
+  <text x="${rayStartX-2}" y="${cy-34}" font-size="10" fill="var(--text3)">(near)</text>
+
+  <!-- ── STRUCTURE LABELS with tap targets ──────── -->
+  <!-- Cornea -->
+  <g onclick="anatTap('cornea')" style="cursor:pointer">
+    <line x1="${cx-rx-10}" y1="${cy}" x2="${cx-rx-28}" y2="${cy-38}"
+      stroke="${hi==='cornea'?'#60a5fa':'var(--border2)'}" stroke-width="1" opacity="0.7"/>
+    <circle cx="${cx-rx-10}" cy="${cy}" r="4" fill="${hi==='cornea'?'#60a5fa':'var(--border2)'}" opacity="0.8"/>
+    <rect x="${cx-rx-72}" y="${cy-52}" width="44" height="18" rx="5"
+      fill="${hi==='cornea'?'#1e3a5f':'var(--bg3)'}" stroke="${hi==='cornea'?'#60a5fa':'var(--border2)'}" stroke-width="1"/>
+    <text x="${cx-rx-50}" y="${cy-39}" text-anchor="middle" font-size="10"
+      fill="${hi==='cornea'?'#60a5fa':'var(--text2)'}">Cornea</text>
+  </g>
+
+  <!-- Lens -->
+  <g onclick="anatTap('lens')" style="cursor:pointer">
+    <line x1="${cx-rx+32}" y1="${cy-16}" x2="${cx-rx+10}" y2="${cy-52}"
+      stroke="${hi==='lens'?'#4ade80':'var(--border2)'}" stroke-width="1" opacity="0.7"/>
+    <circle cx="${cx-rx+32}" cy="${cy-16}" r="4" fill="${hi==='lens'?'#4ade80':'var(--border2)'}" opacity="0.8"/>
+    <rect x="${cx-rx+2}" y="${cy-68}" width="38" height="18" rx="5"
+      fill="${hi==='lens'?'#14532d':'var(--bg3)'}" stroke="${hi==='lens'?'#4ade80':'var(--border2)'}" stroke-width="1"/>
+    <text x="${cx-rx+21}" y="${cy-55}" text-anchor="middle" font-size="10"
+      fill="${hi==='lens'?'#4ade80':'var(--text2)'}">Lens</text>
+  </g>
+
+  <!-- Ciliary -->
+  <g onclick="anatTap('ciliary')" style="cursor:pointer">
+    <line x1="${cx-rx+52}" y1="${cy-34}" x2="${cx-rx+80}" y2="${cy-62}"
+      stroke="${hi==='ciliary'?'#f472b6':'var(--border2)'}" stroke-width="1" opacity="0.7"/>
+    <circle cx="${cx-rx+52}" cy="${cy-34}" r="4" fill="${hi==='ciliary'?'#f472b6':'var(--border2)'}" opacity="0.8"/>
+    <rect x="${cx-rx+64}" y="${cy-78}" width="68" height="18" rx="5"
+      fill="${hi==='ciliary'?'#4a044e':'var(--bg3)'}" stroke="${hi==='ciliary'?'#f472b6':'var(--border2)'}" stroke-width="1"/>
+    <text x="${cx-rx+98}" y="${cy-65}" text-anchor="middle" font-size="10"
+      fill="${hi==='ciliary'?'#f472b6':'var(--text2)'}">Ciliary muscle</text>
+  </g>
+
+  <!-- Retina -->
+  <g onclick="anatTap('retina')" style="cursor:pointer">
+    <line x1="${retX}" y1="${cy-30}" x2="${retX+12}" y2="${cy-54}"
+      stroke="${hi==='retina'?'#a78bfa':'var(--border2)'}" stroke-width="1" opacity="0.7"/>
+    <circle cx="${retX}" cy="${cy-30}" r="4" fill="${hi==='retina'?'#a78bfa':'var(--border2)'}" opacity="0.8"/>
+    <rect x="${retX+2}" y="${cy-68}" width="42" height="18" rx="5"
+      fill="${hi==='retina'?'#2e1065':'var(--bg3)'}" stroke="${hi==='retina'?'#a78bfa':'var(--border2)'}" stroke-width="1"/>
+    <text x="${retX+23}" y="${cy-55}" text-anchor="middle" font-size="10"
+      fill="${hi==='retina'?'#a78bfa':'var(--text2)'}">Retina</text>
+  </g>
+
+  <!-- Fovea -->
+  <g onclick="anatTap('fovea')" style="cursor:pointer">
+    <line x1="${retX-1}" y1="${cy+4}" x2="${retX+8}" y2="${cy+44}"
+      stroke="${hi==='fovea'?'#fbbf24':'var(--border2)'}" stroke-width="1" opacity="0.7"/>
+    <circle cx="${retX-1}" cy="${cy+4}" r="4" fill="${hi==='fovea'?'#fbbf24':'var(--border2)'}" opacity="0.8"/>
+    <rect x="${retX+2}" y="${cy+38}" width="40" height="18" rx="5"
+      fill="${hi==='fovea'?'#451a03':'var(--bg3)'}" stroke="${hi==='fovea'?'#fbbf24':'var(--border2)'}" stroke-width="1"/>
+    <text x="${retX+22}" y="${cy+51}" text-anchor="middle" font-size="10"
+      fill="${hi==='fovea'?'#fbbf24':'var(--text2)'}">Fovea</text>
+  </g>
+
+  <!-- Axial length (bottom tap) -->
+  <g onclick="anatTap('axial')" style="cursor:pointer">
+    <rect x="${cx-14}" y="${cy+ry+30}" width="28" height="18" rx="5"
+      fill="${hi==='axial'?'#431407':'var(--bg3)'}" stroke="${hi==='axial'?'#fb923c':'var(--border2)'}" stroke-width="1"/>
+    <text x="${cx}" y="${cy+ry+43}" text-anchor="middle" font-size="10"
+      fill="${hi==='axial'?'#fb923c':'var(--text2)'}">Axial</text>
+  </g>
+
+  <!-- Mode watermark -->
+  <text x="${cx}" y="14" text-anchor="middle" font-size="11"
+    fill="${mode==='hyperopia'?'#fb923c':'#4ade80'}" font-weight="600">
+    ${mode==='hyperopia'?'Hyperopic eye (+3.00 / +2.50)':'Normal eye (emmetropic)'}
+  </text>
+
+</svg>`;
+}
+
+function anatTap(id){
+  anatHighlight = anatHighlight===id ? null : id;
+  renderAnatomy();
+}
+
+function renderAnatomy(){
+  const hi = anatHighlight;
+  const struct = hi ? ANAT_STRUCTURES.find(s=>s.id===hi) : null;
+
+  let infoH = '';
+  ANAT_STRUCTURES.forEach(s=>{
+    const active = hi===s.id;
+    infoH += `<div class="anat-info${active?' highlighted':''}" onclick="anatTap('${s.id}')" style="cursor:pointer;border-color:${active?s.colour:'var(--border)'}">
+      <div class="anat-info-title">
+        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${s.colour};flex-shrink:0"></span>
+        ${s.title}
+      </div>
+      ${active ? `<div class="anat-info-body">${s.body}</div>
+      ${s.exercise?`<div class="anat-info-ex">${s.exercise}</div>`:''}` : ''}
+    </div>`;
+  });
+
+  document.getElementById('content').innerHTML = `
+    <div class="anat-toggle">
+      <button class="anat-toggle-btn${anatMode==='hyperopia'?' active':''}"
+        onclick="anatSetMode('hyperopia')">Hyperopic eye</button>
+      <button class="anat-toggle-btn${anatMode==='normal'?' active':''}"
+        onclick="anatSetMode('normal')">Normal eye</button>
+    </div>
+
+    <div class="anat-mode-label">
+      ${anatMode==='hyperopia'
+        ? 'Your prescription (+3.00 / +2.50) — light focuses behind the retina'
+        : 'Emmetropic eye — light focuses exactly on the retina'}
+    </div>
+
+    <div class="anat-svg-wrap">${eyeSVG(anatMode)}</div>
+
+    <div style="font-size:12px;color:var(--text3);margin-bottom:10px;text-align:center">
+      Tap any structure below to learn more
+    </div>
+
+    ${infoH}
+
+    <div class="reminder-box" style="margin-top:4px">
+      <div class="reminder-label">Why exercises help — but have limits</div>
+      <div class="reminder-text" style="font-size:13px">
+        Your <strong style="color:var(--text)">axial length</strong> is fixed — no exercise changes the physical size of your eye or your prescription.
+        What exercises <em>do</em> improve is the <strong style="color:var(--text)">ciliary muscle's stamina</strong> and your
+        <strong style="color:var(--text)">convergence endurance</strong>, reducing fatigue and strain during reading.
+        Track your comfort in the Journal tab, not your prescription.
+      </div>
+    </div>
+  `;
+}
+
+function anatSetMode(mode){
+  anatMode = mode;
+  renderAnatomy();
+}
 window.addEventListener('beforeinstallprompt',e=>{
   e.preventDefault();deferredPrompt=e;
   const b=document.getElementById('installBanner');if(b)b.classList.remove('hidden');
@@ -1121,7 +1841,6 @@ if(!S.onboarded){
   document.getElementById('onboardOverlay').classList.remove('hidden');
 } else {
   render();
-  setTimeout(showWelcomeToast, 400);
 }
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>

@@ -1,5 +1,5 @@
-const CACHE = "eyetrainer-v3";
-const ASSETS = ["/eye-trainer/", "/eye-trainer/index.html", "/eye-trainer/manifest.json"];
+const CACHE = "eyetrainer-v4";
+const ASSETS = ["/eye-trainer/", "/eye-trainer/index.html", "/eye-trainer/manifest.json", "/eye-trainer/sw.js"];
 
 // Audio files are cached dynamically on first play (cache-then-network)
 // This keeps the install lightweight while still supporting offline playback
