@@ -1694,23 +1694,23 @@ function eyeSVG(mode){
   <!-- ── STRUCTURE LABELS with tap targets ──────── -->
   <!-- Cornea -->
   <g onclick="anatTap('cornea')" style="cursor:pointer">
-    <line x1="${cx-rx-10}" y1="${cy}" x2="${cx-rx-28}" y2="${cy-38}"
+    <line x1="${cx-rx-10}" y1="${cy}" x2="${cx-rx-38}" y2="${cy+2}"
       stroke="${hi==='cornea'?'#60a5fa':'var(--border2)'}" stroke-width="1" opacity="0.7"/>
     <circle cx="${cx-rx-10}" cy="${cy}" r="4" fill="${hi==='cornea'?'#60a5fa':'var(--border2)'}" opacity="0.8"/>
-    <rect x="${cx-rx-72}" y="${cy-52}" width="44" height="18" rx="5"
+    <rect x="${cx-rx-82}" y="${cy-12}" width="44" height="18" rx="5"
       fill="${hi==='cornea'?'#1e3a5f':'var(--bg3)'}" stroke="${hi==='cornea'?'#60a5fa':'var(--border2)'}" stroke-width="1"/>
-    <text x="${cx-rx-50}" y="${cy-39}" text-anchor="middle" font-size="10"
+    <text x="${cx-rx-60}" y="${cy+1}" text-anchor="middle" font-size="10"
       fill="${hi==='cornea'?'#60a5fa':'var(--text2)'}">Cornea</text>
   </g>
 
   <!-- Lens -->
   <g onclick="anatTap('lens')" style="cursor:pointer">
-    <line x1="${cx-rx+32}" y1="${cy-16}" x2="${cx-rx+10}" y2="${cy-52}"
+    <line x1="${cx-rx+32}" y1="${cy-16}" x2="${cx-rx+10}" y2="${cy-67}"
       stroke="${hi==='lens'?'#4ade80':'var(--border2)'}" stroke-width="1" opacity="0.7"/>
     <circle cx="${cx-rx+32}" cy="${cy-16}" r="4" fill="${hi==='lens'?'#4ade80':'var(--border2)'}" opacity="0.8"/>
-    <rect x="${cx-rx+2}" y="${cy-68}" width="38" height="18" rx="5"
+    <rect x="${cx-rx+2}" y="${cy-83}" width="38" height="18" rx="5"
       fill="${hi==='lens'?'#14532d':'var(--bg3)'}" stroke="${hi==='lens'?'#4ade80':'var(--border2)'}" stroke-width="1"/>
-    <text x="${cx-rx+21}" y="${cy-55}" text-anchor="middle" font-size="10"
+    <text x="${cx-rx+21}" y="${cy-70}" text-anchor="middle" font-size="10"
       fill="${hi==='lens'?'#4ade80':'var(--text2)'}">Lens</text>
   </g>
 
@@ -1727,12 +1727,12 @@ function eyeSVG(mode){
 
   <!-- Retina -->
   <g onclick="anatTap('retina')" style="cursor:pointer">
-    <line x1="${retX}" y1="${cy-30}" x2="${retX+12}" y2="${cy-54}"
+    <line x1="${retX}" y1="${cy-30}" x2="${retX+12}" y2="${cy-39}"
       stroke="${hi==='retina'?'#a78bfa':'var(--border2)'}" stroke-width="1" opacity="0.7"/>
     <circle cx="${retX}" cy="${cy-30}" r="4" fill="${hi==='retina'?'#a78bfa':'var(--border2)'}" opacity="0.8"/>
-    <rect x="${retX+2}" y="${cy-68}" width="42" height="18" rx="5"
+    <rect x="${retX+2}" y="${cy-53}" width="42" height="18" rx="5"
       fill="${hi==='retina'?'#2e1065':'var(--bg3)'}" stroke="${hi==='retina'?'#a78bfa':'var(--border2)'}" stroke-width="1"/>
-    <text x="${retX+23}" y="${cy-55}" text-anchor="middle" font-size="10"
+    <text x="${retX+23}" y="${cy-40}" text-anchor="middle" font-size="10"
       fill="${hi==='retina'?'#a78bfa':'var(--text2)'}">Retina</text>
   </g>
 
