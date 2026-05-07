@@ -168,7 +168,35 @@ textarea::placeholder{color:var(--text4);}
 .cond-body{font-size:14px;color:var(--text2);line-height:1.68;}
 .autostep-hint{font-size:13px;color:var(--text3);text-align:center;padding:6px 0 2px;font-style:italic;}
 
-/* ── ANATOMY TAB ── */
+/* ── COMPLETION ANIMATIONS ── */
+@keyframes ringFlash{
+  0%{stroke:#4ade80;filter:drop-shadow(0 0 6px #4ade80);}
+  40%{stroke:#ffffff;filter:drop-shadow(0 0 14px #ffffff);}
+  100%{stroke:#4ade80;filter:drop-shadow(0 0 4px #4ade80);}
+}
+@keyframes ringPulse{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.08);}
+}
+.ring-complete #timerArc{animation:ringFlash .6s ease-out forwards;}
+.ring-complete{animation:ringPulse .6s ease-out;}
+@keyframes checkDraw{
+  from{stroke-dashoffset:40;}
+  to{stroke-dashoffset:0;}
+}
+.ex-check-svg path{
+  stroke-dasharray:40;
+  stroke-dashoffset:40;
+  animation:checkDraw .35s ease-out forwards;
+}
+@keyframes cardBounce{
+  0%{transform:scale(1);}
+  40%{transform:scale(1.04);}
+  70%{transform:scale(0.97);}
+  100%{transform:scale(1);}
+}
+.ex-card.just-done{animation:cardBounce .4s ease-out;}
+#burstCanvas{position:fixed;inset:0;pointer-events:none;z-index:999;}
 .anat-toggle{display:flex;background:var(--bg3);border-radius:12px;padding:4px;gap:4px;margin-bottom:18px;}
 .anat-toggle-btn{flex:1;padding:9px 0;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;background:none;color:var(--text3);}
 .anat-toggle-btn.active{background:var(--bg2);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.2);}
@@ -417,6 +445,8 @@ textarea::placeholder{color:var(--text4);}
   </div>
 </div>
 
+<canvas id="burstCanvas" style="display:none"></canvas>
+
 <script>
 // ─── CONSTANTS & STATE ──────────────────────────────────
 const STORAGE_KEY = 'eyetrainer_v2';
@@ -459,7 +489,94 @@ const EXERCISES=[
 function exDur(ex){ return S.customDurations[ex.id]||ex.defaultDuration; }
 function todayKey(){ return new Date().toISOString().slice(0,10); }
 
-// ─── STORAGE ────────────────────────────────────────────
+// ─── COMPLETION ANIMATIONS ──────────────────────────────
+
+// 1. Ring fill flash — plays when timer hits 0 or mark complete is tapped
+function animateRingComplete(color){
+  const ring = document.querySelector('.timer-ring');
+  if(!ring) return;
+  // Snap arc to full first
+  const arc = document.getElementById('timerArc');
+  if(arc){ arc.style.transition='none'; arc.style.strokeDashoffset='0'; arc.style.stroke=color||'#4ade80'; }
+  ring.classList.remove('ring-complete');
+  void ring.offsetWidth; // force reflow to restart animation
+  ring.classList.add('ring-complete');
+  setTimeout(()=>ring.classList.remove('ring-complete'), 700);
+}
+
+// 2. Card bounce + check draw — triggered after render() on the newly completed card
+function animateCardDone(exId){
+  requestAnimationFrame(()=>{
+    const card = document.querySelector(`.ex-card[data-id="${exId}"]`);
+    if(!card) return;
+    card.classList.add('just-done');
+    card.addEventListener('animationend', ()=>card.classList.remove('just-done'), {once:true});
+  });
+}
+
+// 3. All-done particle burst
+function fireAllDoneBurst(){
+  const canvas = document.getElementById('burstCanvas');
+  if(!canvas) return;
+  canvas.style.display = 'block';
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+
+  // Colours drawn from the app palette
+  const colours = ['#4ade80','#60a5fa','#f472b6','#fb923c','#a78bfa','#fbbf24','#86efac'];
+
+  // Spawn particles from the centre-top area (where the all-done banner appears)
+  const originX = canvas.width  / 2;
+  const originY = canvas.height * 0.22;
+
+  const particles = Array.from({length: 72}, ()=>({
+    x: originX + (Math.random()-0.5)*60,
+    y: originY,
+    vx: (Math.random()-0.5) * 14,
+    vy: Math.random() * -18 - 4,
+    size: Math.random()*6 + 3,
+    colour: colours[Math.floor(Math.random()*colours.length)],
+    rotation: Math.random()*360,
+    rotSpeed: (Math.random()-0.5)*8,
+    shape: Math.random()>0.5 ? 'rect' : 'circle',
+    alpha: 1,
+    gravity: 0.55
+  }));
+
+  let frame = 0;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive = false;
+    particles.forEach(p=>{
+      if(p.alpha<=0) return;
+      alive = true;
+      p.x  += p.vx;
+      p.y  += p.vy;
+      p.vy += p.gravity;
+      p.vx *= 0.98;
+      p.rotation += p.rotSpeed;
+      p.alpha = Math.max(0, p.alpha - 0.018);
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation * Math.PI/180);
+      ctx.fillStyle = p.colour;
+      if(p.shape==='rect'){
+        ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+      } else {
+        ctx.beginPath();
+        ctx.arc(0,0,p.size/2,0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.restore();
+    });
+    frame++;
+    if(alive && frame < 180) requestAnimationFrame(draw);
+    else { canvas.style.display='none'; ctx.clearRect(0,0,canvas.width,canvas.height); }
+  }
+  requestAnimationFrame(draw);
+}
 function loadState(){
   try{
     const r=localStorage.getItem(STORAGE_KEY);
@@ -1181,6 +1298,7 @@ function startTimer(){
     }
     if(timerVal===0){
       const allDone=(S.log[todayKey()]||[]).length===EXERCISES.length-1;
+      animateRingComplete(activeEx.tagColor);
       playCompletionAudio(activeEx, allDone);
       stopTimer();
     }
@@ -1214,9 +1332,16 @@ function markComplete(){
   const ex=activeEx;
   const allDone=(S.log[today]||[]).length===EXERCISES.length;
   saveState();
+  animateRingComplete(ex.tagColor);
   playCompletionAudio(ex, allDone);
-  stopTimer();closeModal();render();
-  if(allDone&&!S.journal[today]) setTimeout(openJournal,3200);
+  stopTimer();
+  setTimeout(()=>{
+    closeModal();
+    render();
+    animateCardDone(ex.id);
+    if(allDone) setTimeout(fireAllDoneBurst, 200);
+    if(allDone&&!S.journal[today]) setTimeout(openJournal,3200);
+  }, 420);
 }
 
 // ─── SETTINGS ───────────────────────────────────────────
@@ -1379,7 +1504,7 @@ function renderToday(){
     <button class="install-btn" onclick="installPWA()">Install</button></div>`;
   EXERCISES.forEach(ex=>{
     const done=doneToday.includes(ex.id),dur=exDur(ex);
-    h+=`<div class="ex-card ${done?'done':''}" onclick="${done?'':(`openModal(EXERCISES[${ex.id-1}])`)}">
+    h+=`<div class="ex-card ${done?'done':''}" data-id="${ex.id}" onclick="${done?'':(`openModal(EXERCISES[${ex.id-1}])`)}">
       <div class="ex-icon">${ex.icon}</div>
       <div class="ex-info">
         <div class="ex-name-row">
@@ -1388,7 +1513,12 @@ function renderToday(){
         </div>
         <div class="ex-meta">${Math.floor(dur/60)}:${String(dur%60).padStart(2,'0')} · ${ex.steps.length} steps</div>
       </div>
-      <div class="ex-check ${done?'done':'todo'}">${done?'✓':'›'}</div></div>`;
+      <div class="ex-check ${done?'done':'todo'}" id="check-${ex.id}">
+        ${done
+          ? `<svg class="ex-check-svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M4 10.5 L8.5 15 L16 6" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+             </svg>`
+          : '›'}</div></div>`;
   });
   document.getElementById('content').innerHTML=h;
 }
