@@ -16,186 +16,204 @@
 :root{
   --bg:#060d1a;--bg2:#0f172a;--bg3:#1e293b;--bg4:#0d1b35;
   --border:#1e293b;--border2:#334155;
-  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;--text4:#475569;
+  --text:#f1f5f9;--text2:#94a3b8;
+  /* text3/text4 lightened from #64748b/#475569 to pass WCAG AA 4.5:1 on --bg2 */
+  --text3:#8899aa;--text4:#6b7f93;
   --green:#4ade80;--green-dark:#166534;--green-darker:#14532d;--green-dim:#86efac;
   --blue:#60a5fa;--pink:#f472b6;--orange:#fb923c;--purple:#a78bfa;
   --card-done-bg:#0a1f0a;--card-done-border:#166534;
+  --focus-ring:var(--green);
+  /* Text scale: 1 = Normal, 1.15 = Large, 1.3 = Extra Large */
+  --fs:1;
 }
 [data-theme="light"]{
   --bg:#f0f4ff;--bg2:#ffffff;--bg3:#e8edf5;--bg4:#dbeafe;
   --border:#cbd5e1;--border2:#94a3b8;
   --text:#0f172a;--text2:#334155;--text3:#475569;--text4:#64748b;
   --card-done-bg:#f0fdf4;--card-done-border:#86efac;
+  --focus-ring:#166534;
 }
+[data-textsize="large"]  { --fs:1.15; }
+[data-textsize="xlarge"] { --fs:1.3;  }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;transition:background 0.3s,color 0.3s;}
 button{font-family:'DM Sans',sans-serif;cursor:pointer;}
-button:focus{outline:none;}
+/* Fix 1: Visible focus rings — never suppress outline for keyboard/switch users */
+:focus-visible{outline:2px solid var(--focus-ring);outline-offset:3px;border-radius:4px;}
+button:focus:not(:focus-visible){outline:none;}
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
 #app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
 
 .header{background:linear-gradient(160deg,var(--bg4) 0%,var(--bg) 100%);padding:calc(env(safe-area-inset-top,0px) + 32px) 20px 22px;border-bottom:1px solid var(--border);}
 .header-top{display:flex;justify-content:space-between;align-items:flex-start;}
-.header-eyebrow{font-size:12px;color:var(--green);letter-spacing:3px;font-weight:600;margin-bottom:4px;}
-.header-title{font-size:26px;font-family:'DM Serif Display',serif;line-height:1.2;}
-.header-greeting{font-size:15px;color:var(--text3);margin-top:4px;}
+.header-eyebrow{font-size:calc(12px * var(--fs));color:var(--green);letter-spacing:3px;font-weight:600;margin-bottom:4px;}
+.header-title{font-size:calc(26px * var(--fs));font-family:'DM Serif Display',serif;line-height:1.2;}
+.header-greeting{font-size:calc(15px * var(--fs));color:var(--text3);margin-top:4px;}
 .header-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
-.streak-num{font-size:30px;font-weight:700;color:var(--green);}
-.streak-label{font-size:12px;color:var(--text3);}
+.streak-num{font-size:calc(30px * var(--fs));font-weight:700;color:var(--green);}
+.streak-label{font-size:calc(12px * var(--fs));color:var(--text3);}
 .header-icons{display:flex;gap:8px;}
-.icon-btn{background:var(--bg2);border:1px solid var(--border);border-radius:10px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+/* Item 7: Icon buttons grown to 44×44px (WCAG 2.5.5 minimum touch target) */
+.icon-btn{background:var(--bg2);border:1px solid var(--border);border-radius:10px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:18px;}
 .stats-row{display:flex;gap:8px;margin-top:16px;}
 .stat-card{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
-.stat-val{font-size:20px;font-weight:700;}
-.stat-lbl{font-size:12px;color:var(--text4);margin-top:2px;}
+.stat-val{font-size:calc(20px * var(--fs));font-weight:700;}
+.stat-lbl{font-size:calc(12px * var(--fs));color:var(--text4);margin-top:2px;}
 
 .tabs{padding:12px 20px 0;background:var(--bg);}
 .tab-bar{display:flex;gap:3px;background:var(--bg2);border-radius:10px;padding:4px;}
-.tab-btn{flex:1;padding:10px 0;border-radius:7px;border:none;font-weight:600;font-size:13px;background:none;color:var(--text4);transition:all 0.2s;}
+.tab-btn{flex:1;padding:10px 0;border-radius:7px;border:none;font-weight:600;font-size:calc(13px * var(--fs));background:none;color:var(--text4);transition:all 0.2s;}
 .tab-btn.active{background:var(--bg3);color:var(--text);}
 
 .content{flex:1;padding:16px 20px 90px;}
 
 .ex-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:12px;cursor:pointer;transition:all 0.2s;}
 .ex-card.done{background:var(--card-done-bg);border-color:var(--card-done-border);}
-.ex-icon{font-size:28px;flex-shrink:0;}
+.ex-icon{font-size:calc(28px * var(--fs));flex-shrink:0;}
 .ex-info{flex:1;}
 .ex-name-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;}
-.ex-name{font-weight:600;font-size:16px;}
+.ex-name{font-weight:600;font-size:calc(16px * var(--fs));}
 .ex-name.done{color:var(--green-dim);}
-.ex-tag{font-size:12px;padding:3px 9px;border-radius:20px;font-weight:600;}
-.ex-meta{font-size:14px;color:var(--text3);}
-.ex-check{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;}
+.ex-tag{font-size:calc(12px * var(--fs));padding:3px 9px;border-radius:20px;font-weight:600;}
+.ex-meta{font-size:calc(14px * var(--fs));color:var(--text3);}
+/* Item 7: ex-check grown to 44×44px touch target */
+.ex-check{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;}
 .ex-check.done{background:var(--green);color:#0f172a;}
 .ex-check.todo{border:2px solid var(--border2);color:var(--text4);}
 
 .all-done{background:linear-gradient(135deg,var(--green-darker),var(--green-dark));border:1px solid var(--green);border-radius:14px;padding:15px 18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;}
-.all-done-text h3{font-weight:700;color:var(--green);font-size:16px;}
-.all-done-text p{font-size:15px;color:var(--green-dim);}
+.all-done-text h3{font-weight:700;color:var(--green);font-size:calc(16px * var(--fs));}
+.all-done-text p{font-size:calc(15px * var(--fs));color:var(--green-dim);}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:flex;align-items:flex-end;justify-content:center;z-index:200;}
 .modal-overlay.hidden{display:none;}
 .modal{background:var(--bg2);border:1px solid var(--border);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:22px 22px calc(env(safe-area-inset-bottom,16px) + 16px);max-height:92vh;overflow-y:auto;}
 .modal-handle{width:38px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px;}
-.modal-close{position:absolute;top:18px;right:18px;background:none;border:none;color:var(--text3);font-size:24px;}
+/* Item 7: modal-close grown to 44×44px touch target */
+.modal-close{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--text3);font-size:24px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:8px;}
 .modal-header{display:flex;align-items:center;gap:13px;margin-bottom:15px;}
-.modal-icon{font-size:32px;}
-.modal-title{font-size:20px;font-weight:700;font-family:'DM Serif Display',serif;}
-.why-box{border-radius:11px;padding:13px 16px;margin-bottom:15px;font-size:15px;color:var(--text2);line-height:1.65;border-left-width:3px;border-left-style:solid;}
+.modal-icon{font-size:calc(32px * var(--fs));}
+.modal-title{font-size:calc(20px * var(--fs));font-weight:700;font-family:'DM Serif Display',serif;}
+.why-box{border-radius:11px;padding:13px 16px;margin-bottom:15px;font-size:calc(15px * var(--fs));color:var(--text2);line-height:1.65;border-left-width:3px;border-left-style:solid;}
 .visual-area{margin-bottom:15px;min-height:120px;display:flex;align-items:center;justify-content:center;overflow:visible;}
 .step-counter{display:flex;justify-content:space-between;margin-bottom:7px;}
-.step-label{font-size:13px;color:var(--text3);}
-.step-box{background:var(--bg3);border-radius:10px;padding:14px 16px;font-size:16px;color:var(--text);line-height:1.65;min-height:72px;margin-bottom:11px;}
+.step-label{font-size:calc(13px * var(--fs));color:var(--text3);}
+.step-box{background:var(--bg3);border-radius:10px;padding:14px 16px;font-size:calc(16px * var(--fs));color:var(--text);line-height:1.65;min-height:72px;margin-bottom:11px;}
 .step-nav{display:flex;gap:8px;}
-.step-btn{flex:1;padding:12px 0;background:var(--bg3);border:none;border-radius:10px;font-size:15px;color:var(--text2);}
+.step-btn{flex:1;padding:12px 0;background:var(--bg3);border:none;border-radius:10px;font-size:calc(15px * var(--fs));color:var(--text2);}
 .timer-row{display:flex;align-items:center;gap:15px;margin-top:15px;}
 .timer-ring{position:relative;width:100px;height:100px;flex-shrink:0;}
 .timer-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;}
-.timer-digits{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;}
-.timer-mute{font-size:14px;color:var(--text3);cursor:pointer;user-select:none;}
+.timer-digits{font-size:calc(19px * var(--fs));font-weight:700;font-variant-numeric:tabular-nums;}
+.timer-mute{font-size:14px;color:var(--text3);cursor:pointer;user-select:none;padding:8px;}
 .timer-actions{flex:1;display:flex;flex-direction:column;gap:10px;}
-.btn-start{padding:13px 0;border:none;border-radius:12px;font-weight:700;font-size:16px;color:#0f172a;transition:background 0.2s;}
-.btn-complete{padding:13px 0;background:none;border:1px solid var(--green);border-radius:12px;color:var(--green);font-weight:700;font-size:16px;}
+.btn-start{padding:13px 0;border:none;border-radius:12px;font-weight:700;font-size:calc(16px * var(--fs));color:#0f172a;transition:background 0.2s;}
+.btn-complete{padding:13px 0;background:none;border:1px solid var(--green);border-radius:12px;color:var(--green);font-weight:700;font-size:calc(16px * var(--fs));}
 
 .section-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:17px;margin-bottom:14px;}
-.section-title{font-size:13px;color:var(--text3);letter-spacing:2px;margin-bottom:14px;}
+.section-title{font-size:calc(13px * var(--fs));color:var(--text3);letter-spacing:2px;margin-bottom:14px;}
 .week-grid{display:flex;gap:5px;justify-content:center;}
 .day-cell{text-align:center;}
-.day-box{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;}
-.day-lbl{font-size:12px;color:var(--text4);margin-top:4px;}
+.day-box{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:calc(13px * var(--fs));font-weight:600;}
+.day-lbl{font-size:calc(12px * var(--fs));color:var(--text4);margin-top:4px;}
 .legend{display:flex;justify-content:center;gap:14px;margin-top:12px;}
-.legend-item{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text3);}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:calc(13px * var(--fs));color:var(--text3);}
 .legend-dot{width:11px;height:11px;border-radius:2px;}
 .bar-row{margin-bottom:12px;}
 .bar-top{display:flex;justify-content:space-between;margin-bottom:5px;}
-.bar-name{font-size:15px;color:var(--text);}
-.bar-count{font-size:14px;color:var(--text3);}
+.bar-name{font-size:calc(15px * var(--fs));color:var(--text);}
+.bar-count{font-size:calc(14px * var(--fs));color:var(--text3);}
 .bar-track{background:var(--bg3);border-radius:4px;height:7px;}
 .bar-fill{border-radius:4px;height:7px;transition:width 0.6s ease;}
 .reminder-box{background:var(--bg4);border:1px solid var(--border);border-radius:14px;padding:15px 17px;margin-bottom:14px;}
-.reminder-label{font-size:14px;color:var(--text3);margin-bottom:6px;}
-.reminder-text{font-size:15px;color:var(--text2);line-height:1.65;}
+.reminder-label{font-size:calc(14px * var(--fs));color:var(--text3);margin-bottom:6px;}
+.reminder-text{font-size:calc(15px * var(--fs));color:var(--text2);line-height:1.65;}
 
 .install-banner{background:#0f1f3d;border:1px solid #1e3a8a;border-radius:14px;padding:14px 16px;margin-bottom:14px;display:flex;gap:12px;align-items:center;}
 .install-banner.hidden{display:none;}
-.install-text{flex:1;font-size:15px;color:#93c5fd;line-height:1.5;}
-.install-btn{background:#3b82f6;border:none;border-radius:10px;color:#fff;font-weight:700;font-size:15px;padding:11px 16px;white-space:nowrap;}
+.install-text{flex:1;font-size:calc(15px * var(--fs));color:#93c5fd;line-height:1.5;}
+.install-btn{background:#3b82f6;border:none;border-radius:10px;color:#fff;font-weight:700;font-size:calc(15px * var(--fs));padding:11px 16px;white-space:nowrap;}
 
 .sheet{background:var(--bg2);border:1px solid var(--border);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:22px 22px calc(env(safe-area-inset-bottom,16px) + 20px);max-height:92vh;overflow-y:auto;}
-.sheet-title{font-size:22px;font-weight:700;font-family:'DM Serif Display',serif;margin-bottom:18px;}
+.sheet-title{font-size:calc(22px * var(--fs));font-weight:700;font-family:'DM Serif Display',serif;margin-bottom:18px;}
 .settings-group{margin-bottom:20px;}
-.sg-title{font-size:13px;color:var(--text3);letter-spacing:2px;margin-bottom:10px;}
+.sg-title{font-size:calc(13px * var(--fs));color:var(--text3);letter-spacing:2px;margin-bottom:10px;}
 .settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);}
 .settings-row:last-child{border-bottom:none;}
-.settings-label{font-size:17px;font-weight:500;}
-.settings-sub{font-size:13px;color:var(--text3);margin-top:2px;}
-.toggle{width:52px;height:30px;border-radius:15px;border:none;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;}
-.toggle-knob{position:absolute;top:4px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left 0.2s;}
+.settings-label{font-size:calc(17px * var(--fs));font-weight:500;}
+.settings-sub{font-size:calc(13px * var(--fs));color:var(--text3);margin-top:2px;}
+/* Item 7: toggle height 30→44px minimum touch target, knob repositioned */
+.toggle{width:52px;height:32px;border-radius:16px;border:none;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;min-height:44px;display:flex;align-items:center;}
+.toggle-knob{position:absolute;top:5px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left 0.2s;}
 .toggle.on{background:var(--green);}
 .toggle.off{background:var(--border2);}
 .toggle.on .toggle-knob{left:26px;}
 .toggle.off .toggle-knob{left:4px;}
-.s-input{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:9px 12px;font-size:16px;font-family:'DM Sans',sans-serif;width:145px;text-align:right;}
-.s-select{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:9px 12px;font-size:15px;font-family:'DM Sans',sans-serif;}
-.btn-primary{width:100%;padding:15px;background:var(--green);border:none;border-radius:12px;font-weight:700;font-size:17px;color:#0f172a;margin-top:8px;}
-.btn-secondary{width:100%;padding:13px;background:none;border:1px solid var(--border2);border-radius:12px;font-weight:600;font-size:16px;color:var(--text2);margin-top:8px;}
+.s-input{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:9px 12px;font-size:calc(16px * var(--fs));font-family:'DM Sans',sans-serif;width:145px;text-align:right;}
+.s-select{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:9px 12px;font-size:calc(15px * var(--fs));font-family:'DM Sans',sans-serif;}
+.btn-primary{width:100%;padding:15px;background:var(--green);border:none;border-radius:12px;font-weight:700;font-size:calc(17px * var(--fs));color:#0f172a;margin-top:8px;}
+.btn-secondary{width:100%;padding:13px;background:none;border:1px solid var(--border2);border-radius:12px;font-weight:600;font-size:calc(16px * var(--fs));color:var(--text2);margin-top:8px;}
 
 .journal-entry{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:15px 16px;margin-bottom:12px;}
-.journal-date{font-size:13px;color:var(--text3);margin-bottom:6px;}
-.journal-note{font-size:15px;color:var(--text);line-height:1.65;}
+.journal-date{font-size:calc(13px * var(--fs));color:var(--text3);margin-bottom:6px;}
+.journal-note{font-size:calc(15px * var(--fs));color:var(--text);line-height:1.65;}
 .journal-exercises{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
-.journal-tag{font-size:13px;background:var(--bg3);color:var(--text2);padding:3px 9px;border-radius:20px;}
-.journal-rating{font-size:15px;margin:5px 0;}
-textarea{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);padding:13px 15px;font-size:16px;font-family:'DM Sans',sans-serif;width:100%;resize:vertical;min-height:95px;}
+.journal-tag{font-size:calc(13px * var(--fs));background:var(--bg3);color:var(--text2);padding:3px 9px;border-radius:20px;}
+.journal-rating{font-size:calc(15px * var(--fs));margin:5px 0;}
+textarea{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);padding:13px 15px;font-size:calc(16px * var(--fs));font-family:'DM Sans',sans-serif;width:100%;resize:vertical;min-height:95px;}
 textarea::placeholder{color:var(--text4);}
 .rating-row{display:flex;gap:7px;margin:10px 0;}
-.rating-btn{flex:1;padding:11px 0;border-radius:10px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:14px;font-weight:600;transition:all 0.15s;}
+.rating-btn{flex:1;padding:11px 0;border-radius:10px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:calc(14px * var(--fs));font-weight:600;transition:all 0.15s;}
 .rating-btn.active{border-color:var(--green);background:var(--green);color:#0f172a;}
 
 .onboard-overlay{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;padding:24px;}
 .onboard-overlay.hidden{display:none;}
 .onboard-card{max-width:380px;width:100%;text-align:center;}
 .onboard-icon{font-size:64px;margin-bottom:16px;}
-.onboard-title{font-size:30px;font-family:'DM Serif Display',serif;margin-bottom:8px;}
-.onboard-sub{font-size:16px;color:var(--text2);line-height:1.65;margin-bottom:24px;}
-.ob-field{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px 18px;font-size:17px;color:var(--text);font-family:'DM Sans',sans-serif;margin-bottom:12px;text-align:left;}
+.onboard-title{font-size:calc(30px * var(--fs));font-family:'DM Serif Display',serif;margin-bottom:8px;}
+.onboard-sub{font-size:calc(16px * var(--fs));color:var(--text2);line-height:1.65;margin-bottom:24px;}
+.ob-field{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px 18px;font-size:calc(17px * var(--fs));color:var(--text);font-family:'DM Sans',sans-serif;margin-bottom:12px;text-align:left;}
 .ob-field::placeholder{color:var(--text4);}
 .ob-row{display:flex;gap:10px;margin-bottom:12px;}
-.ob-label{font-size:15px;color:var(--text3);text-align:left;margin-bottom:5px;margin-top:2px;}
+.ob-label{font-size:calc(15px * var(--fs));color:var(--text3);text-align:left;margin-bottom:5px;margin-top:2px;}
 .cond-card{background:var(--bg3);border-radius:12px;padding:15px 17px;margin-bottom:12px;}
-.cond-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:9px;}
-.cond-body{font-size:14px;color:var(--text2);line-height:1.68;}
-.autostep-hint{font-size:13px;color:var(--text3);text-align:center;padding:6px 0 2px;font-style:italic;}
+.cond-title{font-size:calc(16px * var(--fs));font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:9px;}
+.cond-body{font-size:calc(14px * var(--fs));color:var(--text2);line-height:1.68;}
+.autostep-hint{font-size:calc(13px * var(--fs));color:var(--text3);text-align:center;padding:6px 0 2px;font-style:italic;}
 
 /* ── COMPLETION ANIMATIONS ── */
-@keyframes ringFlash{
-  0%{stroke:#4ade80;filter:drop-shadow(0 0 6px #4ade80);}
-  40%{stroke:#ffffff;filter:drop-shadow(0 0 14px #ffffff);}
-  100%{stroke:#4ade80;filter:drop-shadow(0 0 4px #4ade80);}
+@media (prefers-reduced-motion: no-preference){
+  @keyframes ringFlash{
+    0%{stroke:#4ade80;filter:drop-shadow(0 0 6px #4ade80);}
+    40%{stroke:#ffffff;filter:drop-shadow(0 0 14px #ffffff);}
+    100%{stroke:#4ade80;filter:drop-shadow(0 0 4px #4ade80);}
+  }
+  @keyframes ringPulse{
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.08);}
+  }
+  .ring-complete #timerArc{animation:ringFlash .6s ease-out forwards;}
+  .ring-complete{animation:ringPulse .6s ease-out;}
+  @keyframes checkDraw{
+    from{stroke-dashoffset:40;}
+    to{stroke-dashoffset:0;}
+  }
+  .ex-check-svg path{
+    stroke-dasharray:40;
+    stroke-dashoffset:40;
+    animation:checkDraw .35s ease-out forwards;
+  }
+  @keyframes cardBounce{
+    0%{transform:scale(1);}
+    40%{transform:scale(1.04);}
+    70%{transform:scale(0.97);}
+    100%{transform:scale(1);}
+  }
+  .ex-card.just-done{animation:cardBounce .4s ease-out;}
 }
-@keyframes ringPulse{
-  0%,100%{transform:scale(1);}
-  50%{transform:scale(1.08);}
-}
-.ring-complete #timerArc{animation:ringFlash .6s ease-out forwards;}
-.ring-complete{animation:ringPulse .6s ease-out;}
-@keyframes checkDraw{
-  from{stroke-dashoffset:40;}
-  to{stroke-dashoffset:0;}
-}
-.ex-check-svg path{
-  stroke-dasharray:40;
-  stroke-dashoffset:40;
-  animation:checkDraw .35s ease-out forwards;
-}
-@keyframes cardBounce{
-  0%{transform:scale(1);}
-  40%{transform:scale(1.04);}
-  70%{transform:scale(0.97);}
-  100%{transform:scale(1);}
-}
-.ex-card.just-done{animation:cardBounce .4s ease-out;}
+/* Always show the static check state even without animation */
+.ex-check-svg path{stroke-dasharray:40;stroke-dashoffset:0;}
 #burstCanvas{position:fixed;inset:0;pointer-events:none;z-index:999;}
 .anat-toggle{display:flex;background:var(--bg3);border-radius:12px;padding:4px;gap:4px;margin-bottom:18px;}
 .anat-toggle-btn{flex:1;padding:9px 0;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;background:none;color:var(--text3);}
@@ -244,10 +262,10 @@ textarea::placeholder{color:var(--text4);}
       </div>
       <div class="header-right">
         <div class="header-icons">
-          <button class="icon-btn" onclick="toggleMute()" id="headerMuteBtn" title="Audio on/off">🔊</button>
-          <button class="icon-btn" onclick="openInfo()" title="About these exercises">ℹ️</button>
-          <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Theme">🌙</button>
-          <button class="icon-btn" onclick="openSettings()" title="Settings">⚙️</button>
+          <button class="icon-btn" onclick="toggleMute()" id="headerMuteBtn" aria-label="Toggle audio" title="Audio on/off">🔊</button>
+          <button class="icon-btn" onclick="openInfo()" aria-label="About these exercises" title="About these exercises">ℹ️</button>
+          <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" aria-label="Toggle theme" title="Theme">🌙</button>
+          <button class="icon-btn" onclick="openSettings()" aria-label="Settings" title="Settings">⚙️</button>
         </div>
         <div style="text-align:right">
           <div class="streak-num" id="streakNum">0</div>
@@ -263,20 +281,20 @@ textarea::placeholder{color:var(--text4);}
   </div>
 
   <div class="tabs">
-    <div class="tab-bar">
-      <button class="tab-btn active" id="tab0" onclick="switchTab('today')">Today</button>
-      <button class="tab-btn" id="tab1" onclick="switchTab('progress')">Progress</button>
-      <button class="tab-btn" id="tab2" onclick="switchTab('journal')">Journal</button>
-      <button class="tab-btn" id="tab3" onclick="switchTab('anatomy')">Anatomy</button>
-      <button class="tab-btn" id="tab4" onclick="switchTab('acuity')">Acuity</button>
+    <div class="tab-bar" role="tablist" aria-label="App sections">
+      <button class="tab-btn active" id="tab0" role="tab" aria-selected="true"  aria-controls="content" onclick="switchTab('today')">Today</button>
+      <button class="tab-btn" id="tab1" role="tab" aria-selected="false" aria-controls="content" onclick="switchTab('progress')">Progress</button>
+      <button class="tab-btn" id="tab2" role="tab" aria-selected="false" aria-controls="content" onclick="switchTab('journal')">Journal</button>
+      <button class="tab-btn" id="tab3" role="tab" aria-selected="false" aria-controls="content" onclick="switchTab('anatomy')">Anatomy</button>
+      <button class="tab-btn" id="tab4" role="tab" aria-selected="false" aria-controls="content" onclick="switchTab('acuity')">Acuity</button>
     </div>
   </div>
-  <div class="content" id="content"></div>
+  <div class="content" id="content" role="tabpanel" aria-live="polite" aria-atomic="false"></div>
 </div>
 
 <!-- EXERCISE MODAL -->
 <div class="modal-overlay hidden" id="modalOverlay" onclick="handleOvClick(event,'modalOverlay',closeModal)">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle" id="modalDialog">
     <div class="modal-handle"></div>
     <button class="modal-close" onclick="closeModal()">✕</button>
     <div class="modal-header">
@@ -318,10 +336,10 @@ textarea::placeholder{color:var(--text4);}
 
 <!-- SETTINGS SHEET -->
 <div class="modal-overlay hidden" id="settingsOverlay" onclick="handleOvClick(event,'settingsOverlay',closeSettings)">
-  <div class="sheet">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" id="settingsDialog">
     <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeSettings()">✕</button>
-    <div class="sheet-title">Settings</div>
+    <button class="modal-close" onclick="closeSettings()" aria-label="Close settings">✕</button>
+    <div class="sheet-title" id="settingsTitle">Settings</div>
 
     <div class="settings-group">
       <div class="sg-title">PROFILE</div>
@@ -342,11 +360,11 @@ textarea::placeholder{color:var(--text4);}
       <div class="sg-title">AUDIO</div>
       <div class="settings-row">
         <div><div class="settings-label">Timer tones</div><div class="settings-sub">Beeps between voiced countdown cues</div></div>
-        <button class="toggle off" id="togTones" onclick="toggleSetting('tones','togTones')"><div class="toggle-knob"></div></button>
+        <button class="toggle off" id="togTones" aria-pressed="false" aria-label="Timer tones" onclick="toggleSetting('tones','togTones')"><div class="toggle-knob"></div></button>
       </div>
       <div class="settings-row">
         <div><div class="settings-label">Voice guidance</div><div class="settings-sub">Spoken step & timer instructions</div></div>
-        <button class="toggle off" id="togVoice" onclick="toggleSetting('voice','togVoice')"><div class="toggle-knob"></div></button>
+        <button class="toggle off" id="togVoice" aria-pressed="false" aria-label="Voice guidance" onclick="toggleSetting('voice','togVoice')"><div class="toggle-knob"></div></button>
       </div>
     </div>
 
@@ -354,7 +372,7 @@ textarea::placeholder{color:var(--text4);}
       <div class="sg-title">NAVIGATION</div>
       <div class="settings-row">
         <div><div class="settings-label">Auto-Step</div><div class="settings-sub">Steps advance automatically based on exercise duration</div></div>
-        <button class="toggle off" id="togAutoStep" onclick="toggleSetting('autoStep','togAutoStep')"><div class="toggle-knob"></div></button>
+        <button class="toggle off" id="togAutoStep" aria-pressed="false" aria-label="Auto-step" onclick="toggleSetting('autoStep','togAutoStep')"><div class="toggle-knob"></div></button>
       </div>
     </div>
 
@@ -367,7 +385,7 @@ textarea::placeholder{color:var(--text4);}
       <div class="sg-title">NOTIFICATIONS</div>
       <div class="settings-row">
         <div><div class="settings-label">Daily reminder</div><div class="settings-sub">Push notification prompt</div></div>
-        <button class="toggle off" id="togReminder" onclick="toggleReminder()"><div class="toggle-knob"></div></button>
+        <button class="toggle off" id="togReminder" aria-pressed="false" aria-label="Daily reminder" onclick="toggleReminder()"><div class="toggle-knob"></div></button>
       </div>
       <div class="settings-row">
         <div><div class="settings-label">Reminder time</div></div>
@@ -379,7 +397,7 @@ textarea::placeholder{color:var(--text4);}
       <div class="sg-title">APPEARANCE</div>
       <div class="settings-row">
         <div><div class="settings-label">Dark mode</div></div>
-        <button class="toggle off" id="togTheme" onclick="toggleTheme()"><div class="toggle-knob"></div></button>
+        <button class="toggle off" id="togTheme" aria-pressed="false" aria-label="Dark mode" onclick="toggleTheme()"><div class="toggle-knob"></div></button>
       </div>
     </div>
 
@@ -393,10 +411,10 @@ textarea::placeholder{color:var(--text4);}
 
 <!-- JOURNAL SHEET -->
 <div class="modal-overlay hidden" id="journalOverlay" onclick="handleOvClick(event,'journalOverlay',closeJournal)">
-  <div class="sheet">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="journalTitle" id="journalDialog">
     <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeJournal()">✕</button>
-    <div class="sheet-title">Today's Journal</div>
+    <button class="modal-close" onclick="closeJournal()" aria-label="Close journal">✕</button>
+    <div class="sheet-title" id="journalTitle">Today's Journal</div>
     <div style="font-size:13px;color:var(--text3);margin-bottom:8px">HOW DID YOUR EYES FEEL?</div>
     <div class="rating-row">
       <button class="rating-btn" onclick="setRating(1)" id="r1">😣 Poor</button>
@@ -412,10 +430,10 @@ textarea::placeholder{color:var(--text4);}
 
 <!-- INFO OVERLAY -->
 <div class="modal-overlay hidden" id="infoOverlay" onclick="handleOvClick(event,'infoOverlay',closeInfo)">
-  <div class="sheet">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="infoTitle" id="infoDialog">
     <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeInfo()">✕</button>
-    <div class="sheet-title">About These Exercises</div>
+    <button class="modal-close" onclick="closeInfo()" aria-label="Close">✕</button>
+    <div class="sheet-title" id="infoTitle">About These Exercises</div>
     <div style="font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:18px">Each exercise targets a specific aspect of visual comfort. Here's what each condition means and why it affects your reading.</div>
 
     <div class="cond-card">
@@ -452,7 +470,7 @@ textarea::placeholder{color:var(--text4);}
 const STORAGE_KEY = 'eyetrainer_v2';
 const DEF = {
   profile:{name:'',leftEye:'',rightEye:'',goal:'reading'},
-  settings:{tones:true,voice:true,voiceLang:'en-IE',theme:'dark',reminderTime:'09:00',reminderEnabled:false,autoStep:false},
+  settings:{tones:true,voice:true,voiceLang:'en-IE',theme:'dark',reminderTime:'09:00',reminderEnabled:false,autoStep:false,textSize:'normal'},
   customDurations:{},
   log:{},streak:0,bestStreak:0,lastDate:null,
   journal:{},acuity:[],onboarded:false
@@ -489,6 +507,34 @@ const EXERCISES=[
 function exDur(ex){ return S.customDurations[ex.id]||ex.defaultDuration; }
 function todayKey(){ return new Date().toISOString().slice(0,10); }
 
+// ─── FOCUS TRAP ──────────────────────────────────────────
+// Manages focus for modals/sheets per WCAG 2.4.3
+let _lastFocus = null;
+let _trapHandler = null;
+const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+
+function trapFocus(dialogEl){
+  _lastFocus = document.activeElement;
+  const focusable = [...dialogEl.querySelectorAll(FOCUSABLE)];
+  if(focusable.length) setTimeout(()=>focusable[0].focus(), 50);
+  _trapHandler = e=>{
+    if(e.key==='Escape'){ e.preventDefault(); dialogEl.closest('.modal-overlay').__closeHandler&&dialogEl.closest('.modal-overlay').__closeHandler(); return; }
+    if(e.key!=='Tab') return;
+    const items=[...dialogEl.querySelectorAll(FOCUSABLE)];
+    if(!items.length) return;
+    const first=items[0],last=items[items.length-1];
+    if(e.shiftKey){ if(document.activeElement===first){e.preventDefault();last.focus();} }
+    else { if(document.activeElement===last){e.preventDefault();first.focus();} }
+  };
+  document.addEventListener('keydown',_trapHandler);
+}
+
+function releaseFocus(){
+  if(_trapHandler){document.removeEventListener('keydown',_trapHandler);_trapHandler=null;}
+  if(_lastFocus) try{_lastFocus.focus();}catch(e){}
+  _lastFocus=null;
+}
+
 // ─── COMPLETION ANIMATIONS ──────────────────────────────
 
 // 1. Ring fill flash — plays when timer hits 0 or mark complete is tapped
@@ -516,6 +562,8 @@ function animateCardDone(exId){
 
 // 3. All-done particle burst
 function fireAllDoneBurst(){
+  // Skip animation entirely for users who prefer reduced motion
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const canvas = document.getElementById('burstCanvas');
   if(!canvas) return;
   canvas.style.display = 'block';
@@ -753,6 +801,23 @@ function applyTheme(t){
   document.getElementById('themeBtn').textContent=t==='dark'?'🌙':'☀️';
   setTog('togTheme',t==='dark');
   document.getElementById('themeColorMeta').content=t==='dark'?'#060d1a':'#f0f4ff';
+}
+function applyTextSize(size){
+  // size: 'normal' | 'large' | 'xlarge'
+  // Sets data-textsize on <html> which activates --fs CSS variable
+  const el = document.documentElement;
+  el.removeAttribute('data-textsize');
+  if(size && size !== 'normal') el.setAttribute('data-textsize', size);
+  // Keep text size buttons in sync if settings sheet is open
+  ['ts-normal','ts-large','ts-xlarge'].forEach(id=>{
+    const btn = document.getElementById(id);
+    if(btn) btn.classList.toggle('active', id === 'ts-'+size);
+  });
+}
+function setTextSize(size){
+  S.settings.textSize = size;
+  applyTextSize(size);
+  saveState();
 }
 function toggleTheme(){
   S.settings.theme=S.settings.theme==='dark'?'light':'dark';
@@ -1204,6 +1269,14 @@ function getVisual(ex,step){
   return'';
 }
 function startFig8(){
+  // Respect reduced motion — show static dot position instead of animating
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    const d=document.getElementById('fig8dot');
+    const di=document.getElementById('fig8dotInner');
+    if(d){d.setAttribute('cx',140);d.setAttribute('cy',55);}
+    if(di){di.setAttribute('cx',140);di.setAttribute('cy',55);}
+    return;
+  }
   if(fig8Int) clearInterval(fig8Int);
   let t=0;
   fig8Int=setInterval(()=>{
@@ -1238,6 +1311,9 @@ function openModal(ex){
   document.getElementById('timerMuteBtn').textContent=muted?'🔇':'🔊';
   updateStep();updateTimerDisp();
   document.getElementById('modalOverlay').classList.remove('hidden');
+  const dlg=document.getElementById('modalDialog');
+  dlg.closest('.modal-overlay').__closeHandler=closeModal;
+  trapFocus(dlg);
   if(ex.visual==='figure8') setTimeout(startFig8,100);
   playIntroThenStep(ex);
   if(S.settings.autoStep) setTimeout(startAutoStep,1200);
@@ -1248,6 +1324,7 @@ function closeModal(){
   stopAudio();
   document.getElementById('modalOverlay').classList.add('hidden');
   activeEx=null;
+  releaseFocus();
 }
 function handleOvClick(e,id,fn){ if(e.target===document.getElementById(id)) fn(); }
 function updateStep(){
@@ -1347,7 +1424,10 @@ function markComplete(){
 // ─── SETTINGS ───────────────────────────────────────────
 function setTog(id,on){
   const el=document.getElementById(id);
-  if(el) el.className='toggle '+(on?'on':'off');
+  if(el){
+    el.className='toggle '+(on?'on':'off');
+    el.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
 }
 function toggleSetting(key,togId){
   S.settings[key]=!S.settings[key];
@@ -1375,6 +1455,9 @@ function openSettings(){
   });
   document.getElementById('durSettings').innerHTML=dh;
   document.getElementById('settingsOverlay').classList.remove('hidden');
+  const sd=document.getElementById('settingsDialog');
+  sd.closest('.modal-overlay').__closeHandler=closeSettings;
+  trapFocus(sd);
 }
 function closeSettings(){
   S.profile.name=document.getElementById('sName').value.trim()||S.profile.name;
@@ -1387,6 +1470,7 @@ function closeSettings(){
   });
   saveState();render();
   document.getElementById('settingsOverlay').classList.add('hidden');
+  releaseFocus();
 }
 function toggleReminder(){
   if(!S.settings.reminderEnabled){
@@ -1423,8 +1507,16 @@ function confirmReset(){
 }
 
 // ─── INFO ───────────────────────────────────────────────
-function openInfo(){ document.getElementById('infoOverlay').classList.remove('hidden'); }
-function closeInfo(){ document.getElementById('infoOverlay').classList.add('hidden'); }
+function openInfo(){
+  document.getElementById('infoOverlay').classList.remove('hidden');
+  const id=document.getElementById('infoDialog');
+  id.closest('.modal-overlay').__closeHandler=closeInfo;
+  trapFocus(id);
+}
+function closeInfo(){
+  document.getElementById('infoOverlay').classList.add('hidden');
+  releaseFocus();
+}
 
 // ─── JOURNAL ────────────────────────────────────────────
 function openJournal(){
@@ -1433,8 +1525,14 @@ function openJournal(){
   document.getElementById('journalNote').value=j.note||'';
   updateRatingBtns();
   document.getElementById('journalOverlay').classList.remove('hidden');
+  const jd=document.getElementById('journalDialog');
+  jd.closest('.modal-overlay').__closeHandler=closeJournal;
+  trapFocus(jd);
 }
-function closeJournal(){ document.getElementById('journalOverlay').classList.add('hidden'); }
+function closeJournal(){
+  document.getElementById('journalOverlay').classList.add('hidden');
+  releaseFocus();
+}
 function setRating(r){ journalRating=r;updateRatingBtns(); }
 function updateRatingBtns(){
   [1,2,3,4].forEach(r=>{
@@ -1470,7 +1568,10 @@ function switchTab(tab){
 function render(){
   renderHeader();
   TABS.forEach((t,i)=>{
-    document.getElementById('tab'+i).className='tab-btn'+(currentTab===t?' active':'');
+    const btn=document.getElementById('tab'+i);
+    const active=currentTab===t;
+    btn.className='tab-btn'+(active?' active':'');
+    btn.setAttribute('aria-selected', active ? 'true' : 'false');
   });
   if(currentTab==='today') renderToday();
   else if(currentTab==='progress') renderProgress();
@@ -1513,12 +1614,13 @@ function renderToday(){
         </div>
         <div class="ex-meta">${Math.floor(dur/60)}:${String(dur%60).padStart(2,'0')} · ${ex.steps.length} steps</div>
       </div>
-      <div class="ex-check ${done?'done':'todo'}" id="check-${ex.id}">
+      <div class="ex-check ${done?'done':'todo'}" id="check-${ex.id}" aria-label="${done?'Completed':'Not yet done'}">
         ${done
-          ? `<svg class="ex-check-svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          ? `<svg class="ex-check-svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <path d="M4 10.5 L8.5 15 L16 6" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
              </svg>`
-          : '›'}</div></div>`;
+          : '<span aria-hidden="true">›</span>'}</div>
+      ${done ? `<div style="font-size:calc(10px * var(--fs));color:var(--green-dim);font-weight:600;letter-spacing:.5px;margin-left:-6px;margin-right:2px">Done</div>` : ''}</div>`;
   });
   document.getElementById('content').innerHTML=h;
 }
@@ -1973,6 +2075,7 @@ window.addEventListener('appinstalled',()=>{
 // ─── INIT ───────────────────────────────────────────────
 loadState();
 applyTheme(S.settings.theme||'dark');
+applyTextSize(S.settings.textSize||'normal');
 if(!S.onboarded){
   document.getElementById('onboardOverlay').classList.remove('hidden');
 } else {
